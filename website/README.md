@@ -1,3 +1,2 @@
-# MXguard Website
+# mxguard website
 
-...
