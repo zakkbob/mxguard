@@ -1,20 +1,37 @@
-<form onsubmit="register(event)">
-  <input id="username" placeholder="Username" required />
-  <input id="password" type="password" placeholder="Password" required />
-  <button>Register</button>
-</form>
+<!DOCTYPE html>
+<html>
 
-<script>
-  async function register(e) {
-    e.preventDefault();
-    await fetch("/api/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        username: document.getElementById("username").value,
-        password: document.getElementById("password").value
-      })
-    });
-    alert("Successfuly Registered!");
-  }
-</script>
+<head>
+    <title>Register</title>
+</head>
+
+<body>
+    <h1>Register</h1>
+    <form onsubmit="register(event)">
+        <input id="username" placeholder="Username" required /><br>
+        <input id="password" type="password" placeholder="Password" required /><br>
+        <button>Register</button>
+    </form>
+    <p><a href="login.html">Already have an account? Login</a></p>
+
+    <script>
+        async function register(e) {
+            e.preventDefault();
+            const res = await fetch("/api/register", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    username: document.getElementById("username").value,
+                    password: document.getElementById("password").value
+                })
+            });
+            if (res.ok) {
+                window.location.href = "welcome.html";
+            } else {
+                alert("Failed to register :(");
+            }
+        }
+    </script>
+</body>
+
+</html>
