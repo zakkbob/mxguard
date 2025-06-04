@@ -2,7 +2,7 @@
 
 # Basic
 - [x] Send an email with go (let's check it's possible)
-- [ ] Decide on database scheme which allows the 'Basic Features'
+- [x] Decide on database scheme which allows the 'Basic Features'
 - [ ] Make a go server which forwards emails according to the database
 - [ ] Make an api
 - [ ] Make a web ui
