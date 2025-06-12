@@ -15,11 +15,12 @@ import (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "mxguard",
-	Short: "Manage mxguard",
-	Long: `Nothing here yet...`,
+	Short: "manage mxguard",
+	Long: `nothing here yet...`,
+	Version: "0.1.0-alpha",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {  },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
