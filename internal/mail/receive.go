@@ -15,13 +15,6 @@ type Backend struct {
 	Mail chan MailInfo
 }
 
-// NewSession is called after client greeting (EHLO, HELO).
-func (bkd *Backend) NewSession(c *smtp.Conn) (smtp.Session, error) {
-	return &Session{
-		backend: bkd,
-	}, nil
-}
-
 // A Session is returned after successful login.
 type Session struct {
 	from    string
@@ -29,8 +22,19 @@ type Session struct {
 	backend *Backend
 }
 
-// AuthMechanisms returns a slice of available auth mechanisms; only PLAIN is
-// supported in this example.
+type Server struct {
+	server *smtp.Server
+	Mail   chan MailInfo
+}
+
+// Called after client greeting (EHLO, HELO).
+func (bkd *Backend) NewSession(c *smtp.Conn) (smtp.Session, error) {
+	return &Session{
+		backend: bkd,
+	}, nil
+}
+
+// AuthMechanisms returns a slice of available auth mechanisms;
 func (s *Session) AuthMechanisms() []string {
 	return []string{sasl.Anonymous}
 }
@@ -43,18 +47,21 @@ func (s *Session) Auth(mech string) (sasl.Server, error) {
 	}), nil
 }
 
+// Called when 'MAIL FROM:' command is given
 func (s *Session) Mail(from string, opts *smtp.MailOptions) error {
 	s.from = from
 	log.Println("Mail from:", from)
 	return nil
 }
 
+// Called when 'RCPT TO:' command is given
 func (s *Session) Rcpt(to string, opts *smtp.RcptOptions) error {
 	s.to = append(s.to, to)
 	log.Println("Rcpt to:", to)
 	return nil
 }
 
+// Called when 'DATA' command is given
 func (s *Session) Data(r io.Reader) error {
 	if e, err := enmime.ReadEnvelope(r); err != nil {
 		return err
@@ -79,11 +86,6 @@ func (s *Session) Reset() {}
 
 func (s *Session) Logout() error {
 	return nil
-}
-
-type Server struct {
-	server *smtp.Server
-	Mail   chan MailInfo
 }
 
 func NewServer(addr, domain string) *Server {
@@ -113,17 +115,3 @@ func (s *Server) ListenAndServe() error {
 	}
 	return nil
 }
-
-// ExampleServer runs an example SMTP server.
-//
-// It can be tested manually with e.g. netcat:
-//
-//	> netcat -C localhost 1025
-//	EHLO localhost
-//	AUTH PLAIN
-//	AHVzZXJuYW1lAHBhc3N3b3Jk
-//	MAIL FROM:<root@nsa.gov>
-//	RCPT TO:<root@gchq.gov.uk>
-//	DATA
-//	Hey <3
-//	.
