@@ -5,7 +5,7 @@
 
 # mxguard
 Guard your inbox from spammers using anonymous aliases
-A privacy-focused mail proxy for [Hack Club's Neighborhood](https://neighborhood.hackclub.com/) (written in go)
+A privacy-focused mail proxy for Hack Club's [Summer of Making](https://summer.hack.club/b2l)  (written in go)
 
 # Features
 - [ ] Create an account
