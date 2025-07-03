@@ -4,8 +4,6 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
@@ -17,8 +15,8 @@ var startCmd = &cobra.Command{
 	Short: "start your server",
 	Long:  `start your server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.WithFields(log.Fields{"event": "prepare_server_start"}).Info("Preparing to start server")
-		fmt.Println("listening at ...")
+		log.Info("Preparing to start server")
+		log.Info("Listening at ...")
 	},
 }
 

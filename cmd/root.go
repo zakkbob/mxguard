@@ -12,8 +12,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var Verbose bool
-var Debug bool
+var (
+	CfgFile string
+	Verbose bool
+	Debug   bool
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -37,16 +40,24 @@ func Execute() {
 	}
 }
 
+func initConfig() {
+	if viper.GetBool("debug") {
+		log.SetLevel(log.DebugLevel)
+	} else {
+		log.SetLevel(log.InfoLevel)
+	}
+
+	for key, value := range viper.GetViper().AllSettings() {
+		log.WithFields(log.Fields{
+			key: value,
+		}).Info("Command Flag")
+	}
+}
+
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	cobra.OnInitialize(initConfig)
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mxguard.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	//rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mxguard.yaml)")
 
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Display more verbose console output (default: false)")
 	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
