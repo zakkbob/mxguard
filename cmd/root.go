@@ -41,6 +41,20 @@ func Execute() {
 }
 
 func initConfig() {
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath("$HOME/.mxguard")
+	viper.AddConfigPath(".")
+
+	err := viper.ReadInConfig()
+	if err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.WithError(err).Warning("Config file not found; continuing with defaults")
+		} else {
+			log.WithError(err).Fatal("Failed to read config file")
+		}
+	}
+	
 	if viper.GetBool("debug") {
 		log.SetLevel(log.DebugLevel)
 	} else {
