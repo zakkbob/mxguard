@@ -13,7 +13,7 @@ import (
 var stopCmd = &cobra.Command{
 	Use:   "stop",
 	Short: "Stop your server",
-	Long: "Stop your server", 
+	Long:  "Stop your server",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("stopped.")
 	},
