@@ -1,6 +1,5 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
@@ -9,21 +8,24 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-)
 
+	log "github.com/sirupsen/logrus"
+)
 
 var Verbose bool
 var Debug bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "mxguard",
-	Short: "manage mxguard",
-	Long: `nothing here yet...`,
+	Use:     "mxguard",
+	Short:   "manage mxguard",
+	Long:    `nothing here yet...`,
 	Version: "0.1.0-alpha",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {  },
+	Run: func(cmd *cobra.Command, args []string) {
+		log.Info("Hi! Nothing to see here yet...")
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -52,5 +54,3 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Debug, "debug", "d", false, "Display debugging output in console (default: false)")
 	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 }
-
-
