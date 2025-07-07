@@ -4,8 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"fmt"
-
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +14,7 @@ var stopCmd = &cobra.Command{
 	Short: "Stop your server",
 	Long:  "Stop your server",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("stopped.")
+		log.Info("Stopped")
 	},
 }
 
