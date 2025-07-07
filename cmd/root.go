@@ -44,7 +44,8 @@ func initConfig() {
 	viper.AddConfigPath("$HOME/.mxguard")
 	viper.AddConfigPath(".")
 
-	err := viper.ReadInConfig()
+	var err error
+	err = viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.WithError(err).Warning("Config file not found; continuing with defaults")
