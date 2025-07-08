@@ -59,6 +59,8 @@ func initConfig() {
 		log.WithError(err).Fatal("Failed to unmarshal config into struct")
 	}
 
+	log.Info(Config)
+
 	if Config.Debug {
 		log.SetLevel(log.DebugLevel)
 	} else {

@@ -7,16 +7,19 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zakkbob/mxguard/internal/config"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var pool *pgxpool.Pool
 var ctx = context.Background()
 
-type User struct {
-	ID       int
-	IsAdmin  bool
-	Username string
+type Conn interface {
+	Begin(ctx context.Context) (pgx.Tx, error)
+	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, optionsAndArgs ...interface{}) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, optionsAndArgs ...interface{}) pgx.Row
 }
 
 func Init(c *config.Config) {
