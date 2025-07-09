@@ -12,9 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var pool *pgxpool.Pool
-var ctx = context.Background()
-
 type Conn interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
@@ -22,7 +19,10 @@ type Conn interface {
 	QueryRow(ctx context.Context, sql string, optionsAndArgs ...interface{}) pgx.Row
 }
 
-func Init(c *config.Config) {
+func Init(c *config.Config) *pgxpool.Pool {
+	var pool *pgxpool.Pool
+	var ctx = context.Background()
+
 	// Initialise the connection pool
 	var err error
 	var url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", c.Postgres.User, c.Postgres.Password, c.Postgres.Url, c.Postgres.DB, c.Postgres.SSLmode)
@@ -37,4 +37,6 @@ func Init(c *config.Config) {
 	}
 
 	log.WithField("url", url).Info("Connected to PostgreSQL database")
+
+	return pool
 }

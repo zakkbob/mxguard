@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	log "github.com/sirupsen/logrus"
@@ -17,17 +16,18 @@ type User struct {
 
 func CreateUser(conn database.Conn, username string, isAdmin bool) error {
 	sql := `
-        INSERT INTO user (username, is_admin)
+        INSERT INTO usr (username, is_admin)
         VALUES ($1, $2)
         RETURNING id
     `
 
 	var ctx = context.Background()
 
-	var id int
-	err := conn.QueryRow(ctx, sql, username, isAdmin, false).Scan(&id)
+	var id string
+	err := conn.QueryRow(ctx, sql, username, isAdmin).Scan(&id)
 	if err != nil {
-		return fmt.Errorf("error creating task: %w", err)
+		log.WithError(err).Error("Failed to create user")
+		return err
 	}
 
 	log.Trace("Created user with ID: " + strconv.Itoa(id))
