@@ -2,7 +2,8 @@ package user
 
 import (
 	"context"
-	"strconv"
+
+	"github.com/google/uuid"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/zakkbob/mxguard/internal/database"
@@ -23,13 +24,13 @@ func CreateUser(conn database.Conn, username string, isAdmin bool) error {
 
 	var ctx = context.Background()
 
-	var id string
+	var id uuid.UUID
 	err := conn.QueryRow(ctx, sql, username, isAdmin).Scan(&id)
 	if err != nil {
 		log.WithError(err).Error("Failed to create user")
 		return err
 	}
 
-	log.Trace("Created user with ID: " + strconv.Itoa(id))
+	log.Trace("Created user with ID: " + id.String())
 	return nil
 }

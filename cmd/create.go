@@ -17,7 +17,7 @@ var createCmd = &cobra.Command{
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conn := database.Init(&Config)
-		err := user.CreateUser(conn, "test", true)
+		err := user.CreateUser(conn, "test2", true)
 		if err != nil {
 			log.Info(":(")
 		}
