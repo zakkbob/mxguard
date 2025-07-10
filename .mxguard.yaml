@@ -1,0 +1,9 @@
+verbose: false
+debug: false
+
+postgres: 
+  url: localhost:8000
+  db: gotodo
+  user: postgres
+  password: admin
+  sslmode: disable
