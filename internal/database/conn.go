@@ -7,19 +7,22 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/zakkbob/mxguard/internal/config"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var pool *pgxpool.Pool
-var ctx = context.Background()
-
-type User struct {
-	ID       int
-	IsAdmin  bool
-	Username string
+type Conn interface {
+	Begin(ctx context.Context) (pgx.Tx, error)
+	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
+	Query(ctx context.Context, sql string, optionsAndArgs ...interface{}) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, optionsAndArgs ...interface{}) pgx.Row
 }
 
-func Init(c *config.Config) {
+func Init(c *config.Config) *pgxpool.Pool {
+	var pool *pgxpool.Pool
+	var ctx = context.Background()
+
 	// Initialise the connection pool
 	var err error
 	var url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", c.Postgres.User, c.Postgres.Password, c.Postgres.Url, c.Postgres.DB, c.Postgres.SSLmode)
@@ -34,4 +37,6 @@ func Init(c *config.Config) {
 	}
 
 	log.WithField("url", url).Info("Connected to PostgreSQL database")
+
+	return pool
 }

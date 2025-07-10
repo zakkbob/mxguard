@@ -28,4 +28,4 @@ go.work.sum
 bin
 
 # Config Files
-config.yaml
+.mxguard.yaml
