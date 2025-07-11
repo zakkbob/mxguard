@@ -17,7 +17,7 @@ import (
 var Config config.Config
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:     "mxguard",
 	Short:   "manage mxguard",
 	Long:    `nothing here yet...`,
@@ -32,7 +32,7 @@ var rootCmd = &cobra.Command{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -79,9 +79,9 @@ func init() {
 
 	//rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mxguard.yaml)")
 
-	rootCmd.PersistentFlags().BoolVarP(&Config.Verbose, "verbose", "v", false, "Display more verbose console output (default: false)")
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	RootCmd.PersistentFlags().BoolVarP(&Config.Verbose, "verbose", "v", false, "Display more verbose console output (default: false)")
+	viper.BindPFlag("verbose", RootCmd.PersistentFlags().Lookup("verbose"))
 
-	rootCmd.PersistentFlags().BoolVarP(&Config.Debug, "debug", "d", false, "Display debugging output in console (default: false)")
-	viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
+	RootCmd.PersistentFlags().BoolVarP(&Config.Debug, "debug", "d", false, "Display debugging output in console (default: false)")
+	viper.BindPFlag("debug", RootCmd.PersistentFlags().Lookup("debug"))
 }

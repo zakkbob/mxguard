@@ -1,10 +1,11 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 */
-package cmd
+package userscmd
 
 import (
 	"github.com/spf13/cobra"
+	rootCmd "github.com/zakkbob/mxguard/cmd"
 )
 
 // usersCmd represents the users command
@@ -18,7 +19,7 @@ var usersCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(usersCmd)
+	rootCmd.RootCmd.AddCommand(usersCmd)
 
 	// Here you will define your flags and configuration settings.
 
