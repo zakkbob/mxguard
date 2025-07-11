@@ -28,8 +28,9 @@ var createCmd = &cobra.Command{
 
 		err = user.CreateUser(conn, username, true)
 		if err != nil {
-			log.Info(":(")
+			log.WithError(err).Fatalf("Failed to create user '%s'", username)
 		}
+		log.Infof("Successfully created user '%s'", username)
 	},
 }
 

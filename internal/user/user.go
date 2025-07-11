@@ -27,7 +27,6 @@ func CreateUser(conn database.Conn, username string, isAdmin bool) error {
 	var id uuid.UUID
 	err := conn.QueryRow(ctx, sql, username, isAdmin).Scan(&id)
 	if err != nil {
-		log.WithError(err).Error("Failed to create user")
 		return err
 	}
 
