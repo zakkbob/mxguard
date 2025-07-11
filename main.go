@@ -5,7 +5,7 @@ package main
 
 import (
 	"github.com/zakkbob/mxguard/cmd"
-	_ "github.com/zakkbob/mxguard/cmd/users"
+	_ "github.com/zakkbob/mxguard/cmd/user"
 )
 
 func main() {

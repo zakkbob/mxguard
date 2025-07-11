@@ -7,9 +7,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	rootCmd "github.com/zakkbob/mxguard/cmd"
+	"github.com/zakkbob/mxguard/cmd/helpers"
 	"github.com/zakkbob/mxguard/internal/database"
 	"github.com/zakkbob/mxguard/internal/user"
-	"github.com/zakkbob/mxguard/cmd/helpers"
 )
 
 // createCmd represents the create command

@@ -10,7 +10,7 @@ import (
 
 // usersCmd represents the users command
 var usersCmd = &cobra.Command{
-	Use:   "users",
+	Use:   "user",
 	Short: "Manage users within the application",
 	Long:  `M a n a g e   u s e r s   w i t h i n   t h e   a p p l i c a t i o n`,
 	// Run: func(cmd *cobra.Command, args []string) {
