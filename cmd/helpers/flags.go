@@ -30,14 +30,14 @@ func GetStringFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string, pr
 // 		value, err := buf.ReadString('\n')
 // 		value = strings.TrimRight(value, "\r\n")
 // 		if err != nil {
-// 			logger.Fatal().Err(err).Msgf("Failed to get %s", name)	
+// 			logger.Fatal().Err(err).Msgf("Failed to get %s", name)
 // 		}
 // 		return value
 // 	}
 //
 // 	value, err := cmd.Flags().GetString(name)
 // 	if err != nil {
-// 		logger.Fatal().Err(err).Msgf("Failed to get %s", name)	
+// 		logger.Fatal().Err(err).Msgf("Failed to get %s", name)
 // 	}
 // 	return value
 // }

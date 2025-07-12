@@ -4,7 +4,6 @@ import "github.com/google/uuid"
 
 type User struct {
 	ID       uuid.UUID
-	IsAdmin  bool
 	Username string
+	IsAdmin  bool
 }
-
