@@ -2,9 +2,7 @@ package service_test
 
 import (
 	"context"
-	"io"
 	"testing"
-	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/internal/model"
@@ -34,7 +32,6 @@ func TestValidUserSucceeds(t *testing.T) {
 		IsAdmin: false,
 	}
 	userService := service.NewUserService(
-		zerolog.New(io.Discard), 
 		&MockUserRepository{},
 	)
 
@@ -51,7 +48,6 @@ func TestEmptyUsernameThrowsErrow(t *testing.T) {
 	}
 	expected := model.User{}
 	userService := service.NewUserService(
-		zerolog.New(io.Discard), 
 		&MockUserRepository{},
 	)
 

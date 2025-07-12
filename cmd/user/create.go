@@ -19,11 +19,12 @@ var createCmd = &cobra.Command{
 	Short: "Create a new user",
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conn := db.InitConn(rootCmd.Logger, &rootCmd.Config)
+		conn, err := db.InitConn(&rootCmd.Config)
+		if err != nil {
+			rootCmd.Logger.Fatal().Err(err).Msg("Failed to connect to database")
+		}
 		userRepository := db.NewPostgresUserRepository(conn)
-		userService := service.NewUserService(rootCmd.Logger, userRepository)
-
-		var err error
+		userService := service.NewUserService(userRepository)
 
 		username, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "username", "Enter username: ")
 		if err != nil {
