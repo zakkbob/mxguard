@@ -22,3 +22,22 @@ func GetStringFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string, pr
 
 	return cmd.Flags().GetString(name)
 }
+
+// func MustGetStringFlagOrPrompt(logger zerolog.Logger, cmd *cobra.Command, reader io.Reader, name string, prompt string) string {
+// 	if !cmd.Flags().Changed(name) {
+// 		fmt.Print(prompt)
+// 		buf := bufio.NewReader(reader)
+// 		value, err := buf.ReadString('\n')
+// 		value = strings.TrimRight(value, "\r\n")
+// 		if err != nil {
+// 			logger.Fatal().Err(err).Msgf("Failed to get %s", name)	
+// 		}
+// 		return value
+// 	}
+//
+// 	value, err := cmd.Flags().GetString(name)
+// 	if err != nil {
+// 		logger.Fatal().Err(err).Msgf("Failed to get %s", name)	
+// 	}
+// 	return value
+// }
