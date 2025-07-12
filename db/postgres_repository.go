@@ -47,7 +47,7 @@ func (u *PostgresUserRepository) DeleteUser(ctx context.Context, user model.User
 	WHERE id = $1
     `
 
-	err := u.Conn.QueryRow(ctx, sql, user.ID)
+	_, err := u.Conn.Exec(ctx, sql, user.ID)
 	if err != nil {
 		return fmt.Errorf("querying database: %w", err)
 	}
