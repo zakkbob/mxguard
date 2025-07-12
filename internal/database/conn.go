@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/config"
 
 	"github.com/jackc/pgx/v5"
@@ -19,24 +19,24 @@ type Conn interface {
 	QueryRow(ctx context.Context, sql string, optionsAndArgs ...interface{}) pgx.Row
 }
 
-func Init(c *config.Config) *pgxpool.Pool {
+func Init(logger zerolog.Logger, cfg *config.Config) *pgxpool.Pool {
 	var pool *pgxpool.Pool
 	var ctx = context.Background()
 
 	// Initialise the connection pool
 	var err error
-	var url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", c.Postgres.User, c.Postgres.Password, c.Postgres.Url, c.Postgres.DB, c.Postgres.SSLmode)
+	var url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Url, cfg.Postgres.DB, cfg.Postgres.SSLmode)
 	pool, err = pgxpool.New(ctx, url)
 	if err != nil {
-		log.WithError(err).WithField("url", url).Fatal("Unable to connect to database")
+		logger.Fatal().Err(err).Str("url", url).Msg("Unable to connect to database")
 	}
 
 	// Verify the connection
 	if err = pool.Ping(ctx); err != nil {
-		log.WithError(err).WithField("url", url).Fatal("Unable to ping database")
+		logger.Fatal().Err(err).Str("url", url).Msg("Unable to ping database")
 	}
 
-	log.WithField("url", url).Info("Connected to PostgreSQL database")
+	logger.Info().Str("url", url).Msg("Connected to PostgreSQL database")
 
 	return pool
 }
