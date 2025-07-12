@@ -4,12 +4,14 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package userscmd
 
 import (
+	"context"
 	"os"
 	"github.com/spf13/cobra"
 	rootCmd "github.com/zakkbob/mxguard/cmd"
 	"github.com/zakkbob/mxguard/cmd/helpers"
+	"github.com/zakkbob/mxguard/db"
 	"github.com/zakkbob/mxguard/internal/database"
-	"github.com/zakkbob/mxguard/internal/user"
+	"github.com/zakkbob/mxguard/internal/service"
 )
 
 // createCmd represents the create command
@@ -19,6 +21,8 @@ var createCmd = &cobra.Command{
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
 		conn := database.Init(rootCmd.Logger, &rootCmd.Config)
+		userRepository := db.NewPostgresUserRepository(conn)
+		userService := service.NewUserService(rootCmd.Logger, userRepository)
 
 		var err error
 		username, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "username", "Enter username: ")
@@ -26,11 +30,13 @@ var createCmd = &cobra.Command{
 			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get username")
 		}
 
-		err = user.CreateUser(conn, username, true)
+		params := service.CreateUserParams{Username: username, IsAdmin: true}
+
+		user, err := userService.CreateUser(context.TODO(), params)
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Msgf("Failed to create user '%s'", username)
+			rootCmd.Logger.Fatal().Err(err).Any("params", params).Msg("Failed to create user")
 		}
-		rootCmd.Logger.Info().Msgf("Successfully created user '%s'", username)
+		rootCmd.Logger.Info().Any("user", user).Msg("Successfully created user")
 	},
 }
 
