@@ -15,6 +15,8 @@ import (
 
 	"strings"
 
+	"github.com/rs/zerolog/pkgerrors"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -101,6 +103,7 @@ func initConfig() {
 }
 
 func initLogger() {
+	zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 	buildInfo, _ := debug.ReadBuildInfo()
 
 	Logger = zerolog.New(zerolog.ConsoleWriter{
@@ -121,7 +124,7 @@ func initLogger() {
 		Int("pid", os.Getpid()).
 		Str("go_version", buildInfo.GoVersion).
 		Logger()
-//		Sample(&zerolog.BasicSampler{N: 5})
+	// Sample(&zerolog.BasicSampler{N: 5})
 }
 
 func init() {
