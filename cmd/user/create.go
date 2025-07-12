@@ -25,12 +25,18 @@ var createCmd = &cobra.Command{
 		userService := service.NewUserService(rootCmd.Logger, userRepository)
 
 		var err error
+
 		username, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "username", "Enter username: ")
 		if err != nil {
 			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get username")
 		}
 
-		params := service.CreateUserParams{Username: username, IsAdmin: true}
+		isAdmin, err := helpers.GetBoolFlagOrPrompt(cmd, os.Stdin, "admin")
+		if err != nil {
+			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get admin status")
+		}
+
+		params := service.CreateUserParams{Username: username, IsAdmin: isAdmin}
 
 		user, err := userService.CreateUser(context.TODO(), params)
 		if err != nil {
@@ -47,7 +53,8 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	createCmd.Flags().String("username", "u", "")
+	createCmd.Flags().StringP("username", "u", "", "Set username")
+	createCmd.Flags().BoolP("admin", "a", false, "Set admin status")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
