@@ -1,4 +1,4 @@
-package database
+package db 
 
 import (
 	"context"
@@ -19,7 +19,7 @@ type Conn interface {
 	QueryRow(ctx context.Context, sql string, optionsAndArgs ...interface{}) pgx.Row
 }
 
-func Init(logger zerolog.Logger, cfg *config.Config) *pgxpool.Pool {
+func InitConn(logger zerolog.Logger, cfg *config.Config) *pgxpool.Pool {
 	var pool *pgxpool.Pool
 	var ctx = context.Background()
 

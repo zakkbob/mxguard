@@ -13,6 +13,10 @@ import (
 type MockUserRepository struct{
 }
 
+func (m *MockUserRepository) DeleteUser(ctx context.Context, user model.User) error {
+	return nil
+}
+
 func (m *MockUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {
 	return model.User {
 		Username: params.Username,
