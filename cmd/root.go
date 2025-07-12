@@ -44,6 +44,12 @@ func Execute() {
 }
 
 func initConfig() {
+	if Config.Debug {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+	} else {
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	}
+
 	if cfgFile != "" {
 		viper.SetConfigFile(cfgFile)
 	} else {
@@ -71,7 +77,7 @@ func initConfig() {
 			Logger.Fatal().Err(err).Msg("Failed to read config file")
 		}
 	} else {
-		Logger.Info().Str("config", viper.ConfigFileUsed()).Msg("Found config file")
+		Logger.Debug().Str("config", viper.ConfigFileUsed()).Msg("Found config file")
 	}
 
 	err = viper.Unmarshal(&Config)
@@ -79,7 +85,7 @@ func initConfig() {
 		Logger.Fatal().Err(err).Msg("Failed to unmarshal config into struct")
 	}
 
-	Logger.Info().Any("config", Config).Msg("Config struct")
+	Logger.Debug().Any("config", Config).Msg("Config struct")
 
 	if Config.Debug {
 		zerolog.SetGlobalLevel(zerolog.DebugLevel)
@@ -88,7 +94,7 @@ func initConfig() {
 	}
 
 	for key, value := range viper.GetViper().AllSettings() {
-		Logger.Info().Any(key, value).Msg("Using field")
+		Logger.Debug().Any(key, value).Msg("Using field")
 	}
 }
 
