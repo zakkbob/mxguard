@@ -40,3 +40,17 @@ func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.
 		IsAdmin:  params.IsAdmin,
 	}, nil
 }
+
+func (u *PostgresUserRepository) DeleteUser(ctx context.Context, user model.User) error {
+	sql := `
+	DELETE FROM usr
+	WHERE id = $1
+    `
+
+	err := u.Conn.QueryRow(ctx, sql, user.ID)
+	if err != nil {
+		return fmt.Errorf("querying database: %w", err)
+	}
+
+	return nil
+}

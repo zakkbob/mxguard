@@ -8,6 +8,7 @@ import (
 	"github.com/zakkbob/mxguard/internal/model"
 )
 
+//var ErrNoID = errors.New("ID cannot be nil")
 var ErrEmptyUsername = errors.New("username cannot be empty")
 
 
@@ -18,6 +19,7 @@ type CreateUserParams struct {
 
 type UserRepository interface {
 	CreateUser(context.Context, CreateUserParams) (model.User, error)
+	DeleteUser(context.Context, model.User) error
 }
 
 func NewUserService(logger zerolog.Logger, repo UserRepository) *UserService {
@@ -42,4 +44,17 @@ func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (
 		return user, fmt.Errorf("creating user: %w", err)
 	}
 	return user, nil
+}
+
+
+func (u *UserService) DeleteUser(ctx context.Context, user model.User) error {
+	//if user.ID == nil {
+	//	return ErrNoID
+	//}
+
+	err := u.Repo.DeleteUser(ctx, user)
+	if err != nil {
+		return fmt.Errorf("deleting user: %w", err)
+	}
+	return nil
 }
