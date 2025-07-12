@@ -4,18 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/zakkbob/mxguard/internal/database"
 	"github.com/zakkbob/mxguard/internal/model"
 	"github.com/zakkbob/mxguard/internal/service"
 )
 
 type PostgresUserRepository struct {
-	Conn database.Conn
+	Conn Conn
 }
 
 var _ service.UserRepository = &PostgresUserRepository{}
 
-func NewPostgresUserRepository(conn database.Conn) *PostgresUserRepository {
+func NewPostgresUserRepository(conn Conn) *PostgresUserRepository {
 	return &PostgresUserRepository{
 		Conn: conn,
 	}
@@ -47,7 +46,7 @@ func (u *PostgresUserRepository) DeleteUser(ctx context.Context, user model.User
 	WHERE id = $1
     `
 
-	err := u.Conn.QueryRow(ctx, sql, user.ID)
+	_, err := u.Conn.Exec(ctx, sql, user.ID)
 	if err != nil {
 		return fmt.Errorf("querying database: %w", err)
 	}

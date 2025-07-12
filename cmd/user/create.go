@@ -10,7 +10,6 @@ import (
 	rootCmd "github.com/zakkbob/mxguard/cmd"
 	"github.com/zakkbob/mxguard/cmd/helpers"
 	"github.com/zakkbob/mxguard/db"
-	"github.com/zakkbob/mxguard/internal/database"
 	"github.com/zakkbob/mxguard/internal/service"
 )
 
@@ -20,7 +19,7 @@ var createCmd = &cobra.Command{
 	Short: "Create a new user",
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conn := database.Init(rootCmd.Logger, &rootCmd.Config)
+		conn := db.InitConn(rootCmd.Logger, &rootCmd.Config)
 		userRepository := db.NewPostgresUserRepository(conn)
 		userService := service.NewUserService(rootCmd.Logger, userRepository)
 
