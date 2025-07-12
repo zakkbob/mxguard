@@ -4,7 +4,9 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"runtime/debug"
 	"time"
 
@@ -101,14 +103,25 @@ func initConfig() {
 func initLogger() {
 	buildInfo, _ := debug.ReadBuildInfo()
 
-	Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
-		Level(zerolog.TraceLevel).
+	Logger = zerolog.New(zerolog.ConsoleWriter{
+		Out:        os.Stderr,
+		TimeFormat: time.RFC3339,
+		FormatMessage: func(i interface{}) string {
+			return fmt.Sprintf("| %s |", i)
+		},
+		FormatCaller: func(i interface{}) string {
+			return filepath.Base(fmt.Sprintf("%s", i))
+		},
+		PartsExclude: []string{
+			zerolog.TimestampFieldName,
+		}}).Level(zerolog.TraceLevel).
 		With().
 		Timestamp().
 		Caller().
 		Int("pid", os.Getpid()).
 		Str("go_version", buildInfo.GoVersion).
 		Logger()
+//		Sample(&zerolog.BasicSampler{N: 5})
 }
 
 func init() {
