@@ -20,7 +20,7 @@ func (m *MockUserRepository) CreateUser(ctx context.Context, params service.Crea
 	}, nil
 }
 
-func ValidUserSucceeds(t *testing.T) {
+func TestValidUserSucceeds(t *testing.T) {
 	params := service.CreateUserParams {
 		Username: "success",
 		IsAdmin: false,
@@ -40,3 +40,19 @@ func ValidUserSucceeds(t *testing.T) {
 	assert.Equal(t, expected, got, "should be equal")
 }
 
+func TestEmptyUsernameThrowsErrow(t *testing.T) {
+	params := service.CreateUserParams {
+		Username: "",
+		IsAdmin: false,
+	}
+	expected := model.User{}
+	userService := service.NewUserService(
+		zerolog.New(io.Discard), 
+		&MockUserRepository{},
+	)
+
+	got, err := userService.CreateUser(context.TODO(), params)
+	
+	assert.ErrorIs(t, err, service.ErrEmptyUsername, "should not error")
+	assert.Equal(t, expected, got, "should be equal")
+}

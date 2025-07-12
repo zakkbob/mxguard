@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/model"
@@ -32,6 +33,10 @@ type UserService struct {
 }
 
 func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (model.User, error) {
+	if params.Username == "" {
+		return model.User{}, ErrEmptyUsername
+	}
+
 	user, err := u.Repo.CreateUser(ctx, params)
 	if err != nil {
 		return user, fmt.Errorf("creating user: %w", err)
