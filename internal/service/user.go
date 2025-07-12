@@ -1,11 +1,14 @@
 package service
 
 import (
-	"fmt"
 	"context"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/model"
 )
+
+var ErrEmptyUsername = errors.New("username cannot be empty")
+
 
 type CreateUserParams struct {
 	Username string
