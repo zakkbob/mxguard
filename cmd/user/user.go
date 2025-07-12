@@ -1,7 +1,7 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 */
-package userscmd
+package usercmd
 
 import (
 	"github.com/spf13/cobra"
