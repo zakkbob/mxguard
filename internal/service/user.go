@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/model"
 )
 
@@ -22,15 +21,13 @@ type UserRepository interface {
 	DeleteUser(context.Context, model.User) error
 }
 
-func NewUserService(logger zerolog.Logger, repo UserRepository) *UserService {
+func NewUserService(repo UserRepository) *UserService {
 	return &UserService{
-		Logger: logger,
 		Repo:   repo,
 	}
 }
 
 type UserService struct {
-	Logger zerolog.Logger
 	Repo   UserRepository
 }
 
