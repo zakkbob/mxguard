@@ -1,11 +1,15 @@
 package service
 
 import (
-	"fmt"
 	"context"
+	"errors"
+	"fmt"
 	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/model"
 )
+
+var ErrEmptyUsername = errors.New("username cannot be empty")
+
 
 type CreateUserParams struct {
 	Username string
@@ -29,6 +33,10 @@ type UserService struct {
 }
 
 func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (model.User, error) {
+	if params.Username == "" {
+		return model.User{}, ErrEmptyUsername
+	}
+
 	user, err := u.Repo.CreateUser(ctx, params)
 	if err != nil {
 		return user, fmt.Errorf("creating user: %w", err)
