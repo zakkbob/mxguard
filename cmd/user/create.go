@@ -9,6 +9,7 @@ import (
 	"github.com/zakkbob/mxguard/cmd/helpers"
 	"github.com/zakkbob/mxguard/internal/database"
 	"github.com/zakkbob/mxguard/internal/user"
+	"os"
 )
 
 // createCmd represents the create command
@@ -20,7 +21,7 @@ var createCmd = &cobra.Command{
 		conn := database.Init(rootCmd.Logger, &rootCmd.Config)
 
 		var err error
-		username, err := helpers.GetStringFlagOrPrompt(cmd, "username", "Enter username: ")
+		username, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "username", "Enter username: ")
 		if err != nil {
 			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get username")
 		}
