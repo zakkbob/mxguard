@@ -13,6 +13,7 @@ import (
 )
 
 type Conn interface {
+	Ping(ctx context.Context) error
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Exec(ctx context.Context, sql string, arguments ...interface{}) (pgconn.CommandTag, error)
 	Query(ctx context.Context, sql string, optionsAndArgs ...interface{}) (pgx.Rows, error)
