@@ -15,6 +15,5 @@ func GetStringFlagOrPrompt(cmd *cobra.Command, name string, prompt string) (stri
 		return value, nil
 	}
 
-	value, err := cmd.Flags().GetString(name)
-	return "", err
+	return cmd.Flags().GetString(name)
 }
