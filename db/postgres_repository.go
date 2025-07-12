@@ -4,18 +4,17 @@ import (
 	"context"
 	"fmt"
 	"github.com/google/uuid"
-	"github.com/zakkbob/mxguard/internal/database"
 	"github.com/zakkbob/mxguard/internal/model"
 	"github.com/zakkbob/mxguard/internal/service"
 )
 
 type PostgresUserRepository struct {
-	Conn database.Conn
+	Conn Conn
 }
 
 var _ service.UserRepository = &PostgresUserRepository{}
 
-func NewPostgresUserRepository(conn database.Conn) *PostgresUserRepository {
+func NewPostgresUserRepository(conn Conn) *PostgresUserRepository {
 	return &PostgresUserRepository{
 		Conn: conn,
 	}
