@@ -28,12 +28,12 @@ func InitConn(cfg *config.Config) (*pgxpool.Pool, error) {
 	var url = fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=%s", cfg.Postgres.User, cfg.Postgres.Password, cfg.Postgres.Url, cfg.Postgres.DB, cfg.Postgres.SSLmode)
 	pool, err = pgxpool.New(ctx, url)
 	if err != nil {
-		return nil, fmt.Errorf("initialising connection pool: %w")
+		return nil, fmt.Errorf("initialising connection pool: %w", err)
 	}
 
 	// Verify the connection
 	if err = pool.Ping(ctx); err != nil {
-		return nil, fmt.Errorf("pinging database: %w")
+		return nil, fmt.Errorf("pinging database: %w", err)
 	}
 
 	return pool, nil
