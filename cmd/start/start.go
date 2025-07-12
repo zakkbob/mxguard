@@ -4,7 +4,6 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package startcmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	rootCmd "github.com/zakkbob/mxguard/cmd"
 
 	"github.com/spf13/cobra"
@@ -16,8 +15,8 @@ var startCmd = &cobra.Command{
 	Short: "start your server",
 	Long:  `start your server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Info("Preparing to start server")
-		log.Info("Listening at ...")
+		rootCmd.Logger.Info().Msg("Preparing to start server")
+		rootCmd.Logger.Info().Msg("Listening at ...")
 	},
 }
 

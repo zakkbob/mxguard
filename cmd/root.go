@@ -5,18 +5,20 @@ package cmd
 
 import (
 	"os"
+	"runtime/debug"
+	"time"
 
+	"github.com/rs/zerolog"
 	"github.com/zakkbob/mxguard/internal/config"
 
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var cfgFile string
+var Logger zerolog.Logger
 var Config config.Config
 
 // rootCmd represents the base command when called without any subcommands
@@ -28,7 +30,7 @@ var RootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Info("Hi! Nothing to see here yet...")
+		Logger.Info().Msg("Hi! Nothing to see here yet...")
 	},
 }
 
@@ -47,7 +49,7 @@ func initConfig() {
 	} else {
 		home, err := os.UserHomeDir()
 		if err != nil {
-			log.WithError(err).Fatal("Failed to find home dir")
+			Logger.Fatal().Err(err).Msg("Failed to find home dir")
 		}
 
 		viper.AddConfigPath(home)
@@ -64,37 +66,47 @@ func initConfig() {
 	err = viper.ReadInConfig()
 	if err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.WithError(err).Warning("Config file not found; continuing with defaults")
+			Logger.Warn().Err(err).Msg("Config file not found; continuing with defaults")
 		} else {
-			log.WithError(err).Fatal("Failed to read config file")
+			Logger.Fatal().Err(err).Msg("Failed to read config file")
 		}
 	} else {
-		log.WithFields(log.Fields{
-			"config": viper.ConfigFileUsed(),
-		}).Info("Found config file")
+		Logger.Info().Str("config", viper.ConfigFileUsed()).Msg("Found config file")
 	}
 
 	err = viper.Unmarshal(&Config)
 	if err != nil {
-		log.WithError(err).Fatal("Failed to unmarshal config into struct")
+		Logger.Fatal().Err(err).Msg("Failed to unmarshal config into struct")
 	}
 
-	log.Info(Config)
+	Logger.Info().Any("config", Config).Msg("Config struct")
 
 	if Config.Debug {
-		log.SetLevel(log.DebugLevel)
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
 	} else {
-		log.SetLevel(log.InfoLevel)
+		zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	}
 
 	for key, value := range viper.GetViper().AllSettings() {
-		log.WithFields(log.Fields{
-			key: value,
-		}).Info("Using field")
+		Logger.Info().Any(key, value).Msg("Using field")
 	}
 }
 
+func initLogger() {
+	buildInfo, _ := debug.ReadBuildInfo()
+
+	Logger = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339}).
+		Level(zerolog.TraceLevel).
+		With().
+		Timestamp().
+		Caller().
+		Int("pid", os.Getpid()).
+		Str("go_version", buildInfo.GoVersion).
+		Logger()
+}
+
 func init() {
+	initLogger()
 	cobra.OnInitialize(initConfig)
 
 	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file")

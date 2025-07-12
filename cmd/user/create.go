@@ -4,7 +4,6 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package userscmd
 
 import (
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	rootCmd "github.com/zakkbob/mxguard/cmd"
 	"github.com/zakkbob/mxguard/cmd/helpers"
@@ -18,19 +17,19 @@ var createCmd = &cobra.Command{
 	Short: "Create a new user",
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conn := database.Init(&rootCmd.Config)
+		conn := database.Init(rootCmd.Logger, &rootCmd.Config)
 
 		var err error
 		username, err := helpers.GetStringFlagOrPrompt(cmd, "username", "Enter username: ")
 		if err != nil {
-			log.WithError(err).Fatal("Failed to get username")
+			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get username")
 		}
 
 		err = user.CreateUser(conn, username, true)
 		if err != nil {
-			log.WithError(err).Fatalf("Failed to create user '%s'", username)
+			rootCmd.Logger.Fatal().Err(err).Msgf("Failed to create user '%s'", username)
 		}
-		log.Infof("Successfully created user '%s'", username)
+		rootCmd.Logger.Info().Msgf("Successfully created user '%s'", username)
 	},
 }
 
