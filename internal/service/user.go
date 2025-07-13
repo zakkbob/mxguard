@@ -4,12 +4,30 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/zakkbob/mxguard/internal/model"
 	"github.com/google/uuid"
+	"github.com/zakkbob/mxguard/internal/model"
 )
 
+// ---- Errors ----
+
 // var ErrNoID = errors.New("ID cannot be nil")
-var ErrEmptyUsername = errors.New("username cannot be empty")
+var (
+	ErrEmptyUsername = errors.New("username cannot be empty")
+	ErrUserNotFound = errors.New("user not found in repository")
+)
+
+// Represents an internal repository error
+// Abtracts the specific error, while making it accessible through .Error()
+// Consumers can check if the error is internal using Error.Is and handle appropriately
+type ErrInternal struct {
+	Err error
+}
+
+func (e *ErrInternal) Error() string {
+	return fmt.Sprintf("internal repository error: %v", e.Err)
+}
+
+// ----------------
 
 type CreateUserParams struct {
 	Username string

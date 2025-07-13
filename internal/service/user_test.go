@@ -2,9 +2,9 @@ package service_test
 
 import (
 	"context"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/internal/model"
-	"github.com/google/uuid"
 	"github.com/zakkbob/mxguard/internal/service"
 	"testing"
 )
