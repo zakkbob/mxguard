@@ -15,26 +15,25 @@ import (
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/rs/zerolog/log"
-	"github.com/zakkbob/mxguard/db"
-	"github.com/zakkbob/mxguard/internal/config"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-var conn db.Conn
+var dbPool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
-	pool, err := dockertest.NewPool("")
+	dockerPool, err := dockertest.NewPool("")
 	if err != nil {
-		log.Fatal().Msgf("Could not construct pool: %s", err)
+		log.Fatal().Msgf("Could not construct dockertest pool: %s", err)
 	}
 
-	err = pool.Client.Ping()
+	err = dockerPool.Client.Ping()
 	if err != nil {
 		log.Fatal().Msgf("Could not connect to Docker: %s", err)
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
+	resource, err := dockerPool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
 		Tag:        "17",
 		Env: []string{
@@ -60,23 +59,16 @@ func TestMain(m *testing.M) {
 	resource.Expire(120) // Tell docker to hard kill the container in 120 seconds
 
 	// exponential backoff-retry, because the application in the container might not be ready to accept connections yet
-	pool.MaxWait = 120 * time.Second
-	if err = pool.Retry(func() error {
-		conn, err = db.InitConn(&config.Config{
-			Postgres: config.PostgresConfig{
-				Url:      hostAndPort,
-				DB:       "dbname",
-				User:     "user_name",
-				Password: "secret",
-				SSLmode:  "disable",
-			},
-		})
+	dockerPool.MaxWait = 120 * time.Second
+	if err = dockerPool.Retry(func() error {
+		dbPool, err = pgxpool.New(context.Background(), databaseUrl)
 		if err != nil {
-			return err
+			return err 
 		}
-		return conn.Ping(context.Background())
+
+		return dbPool.Ping(context.Background())
 	}); err != nil {
-		log.Fatal().Msgf("Could not connect to docker: %s", err)
+		log.Fatal().Msgf("Could not connect to database: %s", err)
 	}
 
 	wd, _ := os.Getwd()
@@ -92,7 +84,7 @@ func TestMain(m *testing.M) {
 	}
 
 	defer func() {
-		if err := pool.Purge(resource); err != nil {
+		if err := dockerPool.Purge(resource); err != nil {
 			log.Fatal().Msgf("Could not purge resource: %s", err)
 		}
 	}()
@@ -103,6 +95,6 @@ func TestMain(m *testing.M) {
 
 // Is my dockertest thing even working?
 func TestDockerTest(t *testing.T) {
-	err := conn.Ping(context.Background())
-	assert.NoError(t, err, "should not error")
+	err := dbPool.Ping(context.Background())
+	assert.NoError(t, err, "Should be able to ping database")
 }
