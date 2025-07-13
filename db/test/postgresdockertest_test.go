@@ -82,7 +82,7 @@ func TestMain(m *testing.M) {
 	wd, _ := os.Getwd()
 	log.Info().Msgf("Working directory: %s", wd)
 
-	migrater, err := migrate.New("file://migrations", databaseUrl) //Should this be hardcoded? I guess I'll find out
+	migrater, err := migrate.New("file://../migrations", databaseUrl) //Should this be hardcoded? I guess I'll find out
 	if err != nil {
 		log.Fatal().Err(err).Msg("golang-migrate could not connect to database")
 	}
