@@ -4,11 +4,16 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/internal/model"
+	"github.com/google/uuid"
 	"github.com/zakkbob/mxguard/internal/service"
 	"testing"
 )
 
 type MockUserRepository struct {
+}
+
+func (m *MockUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
+	return model.User{}, nil
 }
 
 func (m *MockUserRepository) DeleteUser(ctx context.Context, user model.User) error {
