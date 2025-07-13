@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/zakkbob/mxguard/internal/model"
+	"github.com/google/uuid"
 )
 
 // var ErrNoID = errors.New("ID cannot be nil")
@@ -18,6 +19,7 @@ type CreateUserParams struct {
 type UserRepository interface {
 	CreateUser(context.Context, CreateUserParams) (model.User, error)
 	DeleteUser(context.Context, model.User) error
+	GetUserByID(context.Context, uuid.UUID) (model.User, error)
 }
 
 func NewUserService(repo UserRepository) *UserService {
