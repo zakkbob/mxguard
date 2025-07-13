@@ -2,13 +2,13 @@ package service_test
 
 import (
 	"context"
-	"testing"
-	"github.com/zakkbob/mxguard/internal/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/internal/model"
+	"github.com/zakkbob/mxguard/internal/service"
+	"testing"
 )
 
-type MockUserRepository struct{
+type MockUserRepository struct {
 }
 
 func (m *MockUserRepository) DeleteUser(ctx context.Context, user model.User) error {
@@ -16,35 +16,35 @@ func (m *MockUserRepository) DeleteUser(ctx context.Context, user model.User) er
 }
 
 func (m *MockUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {
-	return model.User {
+	return model.User{
 		Username: params.Username,
-		IsAdmin: params.IsAdmin,
+		IsAdmin:  params.IsAdmin,
 	}, nil
 }
 
 func TestValidUserSucceeds(t *testing.T) {
-	params := service.CreateUserParams {
+	params := service.CreateUserParams{
 		Username: "success",
-		IsAdmin: false,
+		IsAdmin:  false,
 	}
 	expected := model.User{
 		Username: "success",
-		IsAdmin: false,
+		IsAdmin:  false,
 	}
 	userService := service.NewUserService(
 		&MockUserRepository{},
 	)
 
 	got, err := userService.CreateUser(context.TODO(), params)
-	
+
 	assert.NoError(t, err, "should not error")
 	assert.Equal(t, expected, got, "should be equal")
 }
 
 func TestEmptyUsernameThrowsErrow(t *testing.T) {
-	params := service.CreateUserParams {
+	params := service.CreateUserParams{
 		Username: "",
-		IsAdmin: false,
+		IsAdmin:  false,
 	}
 	expected := model.User{}
 	userService := service.NewUserService(
@@ -52,7 +52,7 @@ func TestEmptyUsernameThrowsErrow(t *testing.T) {
 	)
 
 	got, err := userService.CreateUser(context.TODO(), params)
-	
+
 	assert.ErrorIs(t, err, service.ErrEmptyUsername, "should not error")
 	assert.Equal(t, expected, got, "should be equal")
 }

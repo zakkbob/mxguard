@@ -1,8 +1,8 @@
 package helpers_test
 
 import (
-	"fmt"
 	"bytes"
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/cmd/helpers"
@@ -50,9 +50,9 @@ func TestGetStringFlagOrPrompt_FlagNotPassed(t *testing.T) {
 }
 
 func TestGetBoolFlagOrPrompt(t *testing.T) {
-	tests := []struct{
-		input string
-		flag string
+	tests := []struct {
+		input    string
+		flag     string
 		defValue bool
 		expected bool
 	}{
