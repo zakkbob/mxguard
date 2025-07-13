@@ -11,5 +11,5 @@ type PostgresConfig struct {
 type Config struct {
 	Verbose  bool `yaml:"verbose"`
 	Debug    bool `yaml:"debug"`
-	Postgres PostgresConfig 
+	Postgres PostgresConfig
 }
