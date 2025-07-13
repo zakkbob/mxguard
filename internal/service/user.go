@@ -7,9 +7,8 @@ import (
 	"github.com/zakkbob/mxguard/internal/model"
 )
 
-//var ErrNoID = errors.New("ID cannot be nil")
+// var ErrNoID = errors.New("ID cannot be nil")
 var ErrEmptyUsername = errors.New("username cannot be empty")
-
 
 type CreateUserParams struct {
 	Username string
@@ -23,12 +22,12 @@ type UserRepository interface {
 
 func NewUserService(repo UserRepository) *UserService {
 	return &UserService{
-		Repo:   repo,
+		Repo: repo,
 	}
 }
 
 type UserService struct {
-	Repo   UserRepository
+	Repo UserRepository
 }
 
 func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (model.User, error) {
@@ -42,7 +41,6 @@ func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (
 	}
 	return user, nil
 }
-
 
 func (u *UserService) DeleteUser(ctx context.Context, user model.User) error {
 	//if user.ID == nil {

@@ -1,18 +1,22 @@
 package db_test
 
 import (
+	"context"
 	"fmt"
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 	"time"
-	"context"
-	"github.com/stretchr/testify/assert"
 
-	"github.com/zakkbob/mxguard/db"
-	"github.com/zakkbob/mxguard/internal/config"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/rs/zerolog/log"
+	"github.com/zakkbob/mxguard/db"
+	"github.com/zakkbob/mxguard/internal/config"
 )
 
 var conn db.Conn
@@ -32,7 +36,7 @@ func TestMain(m *testing.M) {
 	// pulls an image, creates a container based on it and runs it
 	resource, err := pool.RunWithOptions(&dockertest.RunOptions{
 		Repository: "postgres",
-		Tag:        "11",
+		Tag:        "17",
 		Env: []string{
 			"POSTGRES_PASSWORD=secret",
 			"POSTGRES_USER=user_name",
@@ -60,11 +64,11 @@ func TestMain(m *testing.M) {
 	if err = pool.Retry(func() error {
 		conn, err = db.InitConn(&config.Config{
 			Postgres: config.PostgresConfig{
-				Url: hostAndPort,
-				DB: "dbname",
-				User: "user_name",
+				Url:      hostAndPort,
+				DB:       "dbname",
+				User:     "user_name",
 				Password: "secret",
-				SSLmode: "disable",
+				SSLmode:  "disable",
 			},
 		})
 		if err != nil {
@@ -73,6 +77,18 @@ func TestMain(m *testing.M) {
 		return conn.Ping(context.Background())
 	}); err != nil {
 		log.Fatal().Msgf("Could not connect to docker: %s", err)
+	}
+
+	wd, _ := os.Getwd()
+	log.Info().Msgf("Working directory: %s", wd)
+
+	migrater, err := migrate.New("file://migrations", databaseUrl) //Should this be hardcoded? I guess I'll find out
+	if err != nil {
+		log.Fatal().Err(err).Msg("golang-migrate could not connect to database")
+	}
+
+	for err := migrater.Up(); err != nil && err != migrate.ErrNoChange; {
+		log.Fatal().Err(err).Msg("Could not run migrations")
 	}
 
 	defer func() {

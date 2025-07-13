@@ -6,8 +6,8 @@ import (
 	"bufio"
 	"github.com/spf13/cobra"
 	"io"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 // Get string cobra flag if set, prompt user if missing
@@ -27,7 +27,7 @@ func GetStringFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string, pr
 
 // Get boolean cobra flag if set, prompt user if missing
 // Prompt: (Default is capitalised)
-// {name} (Y/n): 
+// {name} (Y/n):
 func GetBoolFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string) (bool, error) {
 	if cmd.Flags().Changed(name) {
 		return cmd.Flags().GetBool(name)
@@ -35,7 +35,7 @@ func GetBoolFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string) (boo
 
 	defValue, err := strconv.ParseBool(cmd.Flags().Lookup(name).DefValue)
 	if err != nil {
-		return false, fmt.Errorf("parsing bool argument's default value: %w", err) 
+		return false, fmt.Errorf("parsing bool argument's default value: %w", err)
 	}
 	options := "y/N"
 	if defValue {
@@ -51,7 +51,7 @@ func GetBoolFlagOrPrompt(cmd *cobra.Command, reader io.Reader, name string) (boo
 		}
 
 		value = strings.TrimRight(value, "\r\n")
-		
+
 		if value == "" {
 			return defValue, nil
 		} else if value == "n" || value == "N" {
