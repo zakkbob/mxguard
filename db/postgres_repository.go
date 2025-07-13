@@ -40,6 +40,21 @@ func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.
 	}, nil
 }
 
+func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
+	sql := `
+	SELECT id, username, is_admin FROM usr
+	WHERE id = $1
+	`
+
+	var user model.User
+	err := u.Conn.QueryRow(ctx, sql, id).Scan(&user.ID, &user.Username, &user.IsAdmin)
+	if err != nil {
+		return model.User{}, fmt.Errorf("querying database: %w", err)
+	}
+
+	return user, nil
+}
+
 func (u *PostgresUserRepository) DeleteUser(ctx context.Context, user model.User) error {
 	sql := `
 	DELETE FROM usr
