@@ -11,11 +11,11 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgxpool"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
 	"github.com/rs/zerolog/log"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var dbPool *pgxpool.Pool
@@ -63,7 +63,7 @@ func TestMain(m *testing.M) {
 	if err = dockerPool.Retry(func() error {
 		dbPool, err = pgxpool.New(context.Background(), databaseUrl)
 		if err != nil {
-			return err 
+			return err
 		}
 
 		return dbPool.Ping(context.Background())
