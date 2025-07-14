@@ -13,7 +13,7 @@ import (
 // var ErrNoID = errors.New("ID cannot be nil")
 var (
 	ErrEmptyUsername = errors.New("username cannot be empty")
-	ErrUserNotFound = errors.New("user not found in repository")
+	ErrUserNotFound  = errors.New("user not found in repository")
 )
 
 // Represents an internal repository error
@@ -36,8 +36,10 @@ type CreateUserParams struct {
 
 type UserRepository interface {
 	CreateUser(context.Context, CreateUserParams) (model.User, error)
-	DeleteUser(context.Context, model.User) error
+	DeleteUserByID(context.Context, uuid.UUID) error
+	DeleteUserByUsername(context.Context, string) error
 	GetUserByID(context.Context, uuid.UUID) (model.User, error)
+	GetUserByUsername(context.Context, string) (model.User, error)
 }
 
 func NewUserService(repo UserRepository) *UserService {
@@ -62,12 +64,37 @@ func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (
 	return user, nil
 }
 
-func (u *UserService) DeleteUser(ctx context.Context, user model.User) error {
-	//if user.ID == nil {
-	//	return ErrNoID
-	//}
+func (u *UserService) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
+	user, err := u.Repo.GetUserByID(ctx, id)
+	if err != nil {
+		return model.User{}, fmt.Errorf("getting user: %w", err)
+	}
+	return user, nil
+}
 
-	err := u.Repo.DeleteUser(ctx, user)
+func (u *UserService) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
+	user, err := u.Repo.GetUserByUsername(ctx, username)
+	if err != nil {
+		return model.User{}, fmt.Errorf("getting user: %w", err)
+	}
+	return user, nil
+}
+
+// Shorthand for DeleteUserByID(ctx, user.ID)
+func (u *UserService) DeleteUser(ctx context.Context, user model.User) error {
+	return u.DeleteUserByID(ctx, user.ID)
+}
+
+func (u *UserService) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
+	err := u.Repo.DeleteUserByID(ctx, id)
+	if err != nil {
+		return fmt.Errorf("deleting user: %w", err)
+	}
+	return nil
+}
+
+func (u *UserService) DeleteUserByUsername(ctx context.Context, username string) error {
+	err := u.Repo.DeleteUserByUsername(ctx, username)
 	if err != nil {
 		return fmt.Errorf("deleting user: %w", err)
 	}
