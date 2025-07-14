@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/zakkbob/mxguard/internal/model"
@@ -61,15 +62,55 @@ func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) 
 	return user, nil
 }
 
-func (u *PostgresUserRepository) DeleteUser(ctx context.Context, user model.User) error {
+func (u *PostgresUserRepository) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
+	sql := `
+	SELECT id, username, is_admin FROM usr
+	WHERE username = $1
+	`
+
+	var user model.User
+	err := u.Conn.QueryRow(ctx, sql, username).Scan(&user.ID, &user.Username, &user.IsAdmin)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return model.User{}, service.ErrUserNotFound
+		}
+		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+	}
+
+	return user, nil
+}
+
+func (u *PostgresUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
 	sql := `
 	DELETE FROM usr
 	WHERE id = $1
     `
 
-	_, err := u.Conn.Exec(ctx, sql, user.ID)
+	commandTag, err := u.Conn.Exec(ctx, sql, id)
 	if err != nil {
 		return fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return service.ErrUserNotFound
+	}
+
+	return nil
+}
+
+func (u *PostgresUserRepository) DeleteUserByUsername(ctx context.Context, username string) error {
+	sql := `
+	DELETE FROM usr
+	WHERE username = $1
+    `
+
+	commandTag, err := u.Conn.Exec(ctx, sql, username)
+	if err != nil {
+		return fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+	}
+
+	if commandTag.RowsAffected() == 0 {
+		return service.ErrUserNotFound
 	}
 
 	return nil
