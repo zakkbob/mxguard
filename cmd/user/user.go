@@ -8,8 +8,8 @@ import (
 	rootCmd "github.com/zakkbob/mxguard/cmd"
 )
 
-// usersCmd represents the users command
-var usersCmd = &cobra.Command{
+// userCmd represents the users command
+var userCmd = &cobra.Command{
 	Use:   "user",
 	Short: "Manage users within the application",
 	Long:  `M a n a g e   u s e r s   w i t h i n   t h e   a p p l i c a t i o n`,
@@ -19,7 +19,7 @@ var usersCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.RootCmd.AddCommand(usersCmd)
+	rootCmd.RootCmd.AddCommand(userCmd)
 
 	// Here you will define your flags and configuration settings.
 
