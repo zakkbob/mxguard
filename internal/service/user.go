@@ -13,7 +13,7 @@ import (
 // var ErrNoID = errors.New("ID cannot be nil")
 var (
 	ErrEmptyUsername = errors.New("username cannot be empty")
-	ErrUserNotFound  = errors.New("user not found in repository")
+	ErrUserNotFound  = errors.New("user not found")
 )
 
 // Represents an internal repository error
