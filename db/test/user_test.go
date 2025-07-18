@@ -34,22 +34,32 @@ func RandUserCreate(t *testing.T, r service.UserRepository) model.User {
 	return createdUser
 }
 
-func TestCreateAliasReturnsNoError(t *testing.T) {
-	userRepo := db.NewPostgresUserRepository(dbPool)
-
-	user := modeltestutils.RandUser(t)
+func RandAliasCreate(t *testing.T, r service.UserRepository, user model.User) model.Alias {
 	alias := modeltestutils.RandAlias(t)
 
-	createdUser, err := userRepo.CreateUser(context.Background(), service.CreateUserParams{
-		Username: user.Username(),
-		IsAdmin:  user.IsAdmin(),
-		Email:    user.Email(),
-	})
+	createdAlias, err := r.CreateAlias(context.Background(), user, alias.Name(), alias.Description())
+	if err != nil {
+		t.Errorf("failed to create alias: %v", err)
+	}
 
-	assert.NoError(t, err, "CreateUser should not return an error")
+	return createdAlias
+}
 
-	_, err = userRepo.CreateAlias(context.Background(), createdUser, alias.Name(), alias.Description())
+func TestCreateAliasPersistsWithNoErrors(t *testing.T) {
+	userRepo := db.NewPostgresUserRepository(dbPool)
+
+	createdUser := RandUserCreate(t, userRepo)
+
+	expected := modeltestutils.RandAlias(t)
+
+	got, err := userRepo.CreateAlias(context.Background(), createdUser, expected.Name(), expected.Description())
 	assert.NoError(t, err, "CreateAlias should not return an error")
+	modeltestutils.AssertAliasesEqual(t, expected, got, "Returned alias should be equal to passed")
+
+	user, err := userRepo.GetUserByID(context.Background(), createdUser.ID())
+	assert.NoError(t, err, "GetUserByID should not return an error")
+	assert.Len(t, user.Aliases(), 1, "One alias should be present")
+	assert.Equal(t, expected, user.Aliases()[0], "Persisted alias should be equal to created alias")
 }
 
 func TestCreateAndGetUserByID(t *testing.T) {

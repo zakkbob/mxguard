@@ -35,17 +35,21 @@ type postgresUser struct {
 	Username string
 	IsAdmin  bool
 	Email    string
+	Aliases  []postgresAlias
 }
 
-func (u postgresUser) ConstructDomainUser() (model.User, error) {
-	user, err := model.MakeUser(u.ID, u.Username, u.Email, u.IsAdmin)
-	if err != nil {
-		return user, fmt.Errorf("constructing user from database: %w", err)
+func (u postgresUser) constructDomainUser() model.User {
+	aliases := make([]model.Alias, len(u.Aliases))
+
+	for i, alias := range u.Aliases {
+		aliases[i] = alias.constructDomainAlias()
 	}
-	return user, nil
+
+	user := model.UnmarshalUser(u.ID, u.Username, u.Email, u.IsAdmin, aliases)
+	return user
 }
 
-func (a postgresAlias) ConstructDomainAlias() model.Alias {
+func (a postgresAlias) constructDomainAlias() model.Alias {
 	return model.UnmarshalAlias(a.Name, a.Description, a.Enabled)
 }
 
@@ -66,7 +70,38 @@ func (u *PostgresUserRepository) CreateAlias(ctx context.Context, user model.Use
 		Enabled:     true,
 	}
 
-	return alias.ConstructDomainAlias(), nil
+	return alias.constructDomainAlias(), nil
+}
+
+func (u *PostgresUserRepository) getUserAliases(ctx context.Context, userID uuid.UUID) ([]postgresAlias, error) {
+	sql := `
+	SELECT name, description, enabled FROM alias
+	WHERE usr_id = $1
+	`
+
+	rows, err := u.Conn.Query(ctx, sql, userID)
+	if err != nil {
+		return []postgresAlias{}, err
+	}
+
+	defer rows.Close()
+
+	var aliases []postgresAlias
+	var alias postgresAlias
+	for rows.Next() {
+		err = rows.Scan(&alias.Name, &alias.Description, &alias.Enabled)
+		if err != nil {
+			return []postgresAlias{}, err
+		}
+		aliases = append(aliases, alias)
+	}
+
+	if rows.Err() != nil {
+		return []postgresAlias{}, rows.Err()
+	}
+
+	return aliases, nil
+
 }
 
 func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {
@@ -89,7 +124,7 @@ func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.
 		Email:    params.Email,
 	}
 
-	return user.ConstructDomainUser()
+	return user.constructDomainUser(), nil
 }
 
 func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
@@ -104,10 +139,15 @@ func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) 
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.User{}, service.ErrUserNotFound
 		}
-		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+		return model.User{}, fmt.Errorf("querying database for user: %w", &service.ErrInternal{Err: err})
 	}
 
-	return user.ConstructDomainUser()
+	user.Aliases, err = u.getUserAliases(ctx, id)
+	if err != nil {
+		return model.User{}, fmt.Errorf("querying database for user aliases: %w", &service.ErrInternal{Err: err})
+	}
+
+	return user.constructDomainUser(), nil
 }
 
 func (u *PostgresUserRepository) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
@@ -122,10 +162,15 @@ func (u *PostgresUserRepository) GetUserByUsername(ctx context.Context, username
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.User{}, service.ErrUserNotFound
 		}
-		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+		return model.User{}, fmt.Errorf("querying database for user: %w", &service.ErrInternal{Err: err})
 	}
 
-	return user.ConstructDomainUser()
+	user.Aliases, err = u.getUserAliases(ctx, user.ID)
+	if err != nil {
+		return model.User{}, fmt.Errorf("querying database for user aliases: %w", &service.ErrInternal{Err: err})
+	}
+
+	return user.constructDomainUser(), nil
 }
 
 func (u *PostgresUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
@@ -136,7 +181,7 @@ func (u *PostgresUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUI
 
 	commandTag, err := u.Conn.Exec(ctx, sql, id)
 	if err != nil {
-		return fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+		return fmt.Errorf("deleting user from database: %w", &service.ErrInternal{Err: err})
 	}
 
 	if commandTag.RowsAffected() == 0 {
@@ -154,7 +199,7 @@ func (u *PostgresUserRepository) DeleteUserByUsername(ctx context.Context, usern
 
 	commandTag, err := u.Conn.Exec(ctx, sql, username)
 	if err != nil {
-		return fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+		return fmt.Errorf("deleting user from database: %w", &service.ErrInternal{Err: err})
 	}
 
 	if commandTag.RowsAffected() == 0 {
