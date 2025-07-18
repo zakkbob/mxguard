@@ -2,12 +2,13 @@ package service_test
 
 import (
 	"context"
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/zakkbob/mxguard/internal/model"
 	"github.com/zakkbob/mxguard/internal/model/modeltestutils"
 	"github.com/zakkbob/mxguard/internal/service"
-	"testing"
 )
 
 // Captures the passed parameters
@@ -46,6 +47,7 @@ func (m *MockUserRepository) CreateUser(ctx context.Context, params service.Crea
 	return model.User{
 		Username: params.Username,
 		IsAdmin:  params.IsAdmin,
+		Email:    params.Email,
 	}, nil
 }
 
@@ -53,10 +55,12 @@ func TestCreatingUserDoesntModifyUser(t *testing.T) {
 	params := service.CreateUserParams{
 		Username: "success",
 		IsAdmin:  false,
+		Email:    "test@test.com",
 	}
 	expected := model.User{
 		Username: "success",
 		IsAdmin:  false,
+		Email:    "test@test.com",
 	}
 	userRepo := &MockUserRepository{}
 	userService := service.NewUserService(userRepo)
@@ -86,7 +90,7 @@ func TestCreatingUserWithEmptyUsernameThrowsErrEmptyUsername(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	user := modeltestutils.RandUser(t) 
+	user := modeltestutils.RandUser(t)
 
 	userRepo := &MockUserRepository{}
 	userService := service.NewUserService(userRepo)
