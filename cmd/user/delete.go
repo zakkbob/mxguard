@@ -20,6 +20,8 @@ var deleteCmd = &cobra.Command{
 		if err != nil {
 			rootcmd.Logger.Fatal().Err(err).Msg("Failed to connect to database")
 		}
+		defer conn.Close()
+
 		repo := db.NewPostgresUserRepository(conn)
 		users := service.NewUserService(repo)
 

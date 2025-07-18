@@ -8,7 +8,7 @@ import (
 	usercmd "github.com/zakkbob/mxguard/cmd/user"
 )
 
-// userCmd represents the users command
+// alisCmd represents the alias command
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Manage user aliases",

@@ -39,6 +39,8 @@ var createCmd = &cobra.Command{
 		if err != nil {
 			rootcmd.Logger.Fatal().Err(err).Msg("Failed to connect to database")
 		}
+		defer conn.Close()
+
 		userRepo := db.NewPostgresUserRepository(conn)
 
 		user, err := userRepo.GetUserByUsername(context.TODO(), username)

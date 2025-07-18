@@ -118,7 +118,7 @@ func (u *UserService) CreateAlias(ctx context.Context, user model.User, name str
 		return model.Alias{}, ErrEmptyName
 	}
 
-	if name == "" {
+	if description == "" {
 		return model.Alias{}, ErrEmptyDescription
 	}
 
