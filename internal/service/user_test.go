@@ -13,6 +13,7 @@ import (
 
 // Captures the passed parameters
 type MockUserRepository struct {
+	User             model.User // canned user value
 	DeletedUsername  string
 	DeletedID        uuid.UUID
 	DeletedUser      model.User
@@ -22,11 +23,11 @@ type MockUserRepository struct {
 }
 
 func (m *MockUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
-	return model.User{}, nil
+	return m.User, nil
 }
 
 func (m *MockUserRepository) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
-	return model.User{}, nil
+	return m.User, nil
 }
 
 func (m *MockUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {
@@ -44,32 +45,25 @@ func (m *MockUserRepository) DeleteUserByUsername(ctx context.Context, username 
 func (m *MockUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {
 	m.UserCreated = true
 	m.CreateUserParams = params
-	return model.User{
-		Username: params.Username,
-		IsAdmin:  params.IsAdmin,
-		Email:    params.Email,
-	}, nil
+	return m.User, nil
 }
-
 func TestCreatingUserDoesntModifyUser(t *testing.T) {
+	expected := modeltestutils.RandUser(t)
 	params := service.CreateUserParams{
-		Username: "success",
-		IsAdmin:  false,
-		Email:    "test@test.com",
+		Username: expected.Username(),
+		IsAdmin:  expected.IsAdmin(),
+		Email:    expected.Email(),
 	}
-	expected := model.User{
-		Username: "success",
-		IsAdmin:  false,
-		Email:    "test@test.com",
-	}
-	userRepo := &MockUserRepository{}
+
+	userRepo := &MockUserRepository{User: expected}
 	userService := service.NewUserService(userRepo)
 
 	got, err := userService.CreateUser(context.Background(), params)
 
 	assert.NoError(t, err, "CreateUser should not return an error")
 	assert.Equal(t, params, userRepo.CreateUserParams, "Passed user params should be equal to requested")
-	assert.Equal(t, expected, got, "Returned user should be equal to created user")
+
+	modeltestutils.AssertUsersEqual(t, expected, got, "Returned user should be equal to created user")
 }
 
 func TestCreatingUserWithEmptyUsernameThrowsErrEmptyUsername(t *testing.T) {
@@ -100,5 +94,5 @@ func TestDeleteUser(t *testing.T) {
 	assert.NoError(t, err, "DeleteUser should not return an error")
 	assert.False(t, userRepo.UserCreated, "No user should've been created")
 	assert.True(t, userRepo.UserDeleted, "A user should've been deleted")
-	assert.Equal(t, user.ID, userRepo.DeletedID, "Deleted user's ID should equal requested user's ID")
+	assert.Equal(t, user.ID(), userRepo.DeletedID, "Deleted user's ID should equal requested user's ID")
 }

@@ -32,7 +32,7 @@ type postgresUser struct {
 }
 
 func (u postgresUser) ConstructDomainUser() (model.User, error) {
-	user, err := model.NewUser(u.ID, u.Username, u.IsAdmin, u.Email)
+	user, err := model.MakeUser(u.ID, u.Username, u.Email, u.IsAdmin)
 	if err != nil {
 		return user, fmt.Errorf("constructing user from database: %w", err)
 	}

@@ -90,7 +90,7 @@ func (u *UserService) GetUserByUsername(ctx context.Context, username string) (m
 
 // Shorthand for DeleteUserByID(ctx, user.ID)
 func (u *UserService) DeleteUser(ctx context.Context, user model.User) error {
-	return u.DeleteUserByID(ctx, user.ID)
+	return u.DeleteUserByID(ctx, user.ID())
 }
 
 func (u *UserService) DeleteUserByID(ctx context.Context, id uuid.UUID) error {

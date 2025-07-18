@@ -20,10 +20,9 @@ func RandUser(t *testing.T) model.User {
 		t.Errorf("failed to generate random UUID: %v", err)
 	}
 
-	return model.User{
-		ID:       id,
-		Username: gofakeit.LetterN(20),
-		IsAdmin:  gofakeit.Bool(),
-		Email:    gofakeit.Email(),
+	user, err := model.MakeUser(id, gofakeit.LetterN(20), gofakeit.Email(), gofakeit.Bool())
+	if err != nil {
+		t.Errorf("failed to make random user: %v", err)
 	}
+	return user
 }
