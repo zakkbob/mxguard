@@ -20,10 +20,19 @@ func RandUser(t *testing.T) model.User {
 		t.Errorf("failed to generate random UUID: %v", err)
 	}
 
-	return model.User{
-		ID:       id,
-		Username: gofakeit.LetterN(20),
-		IsAdmin:  gofakeit.Bool(),
-		Email:    gofakeit.Email(),
+	user, err := model.MakeUser(id, gofakeit.LetterN(20), gofakeit.Email(), gofakeit.Bool())
+	if err != nil {
+		t.Errorf("failed to make random user: %v", err)
 	}
+	return user
+}
+
+// Returns a user with completely random fields
+// testing.T is passed so that errors can be automatically checked
+func RandAlias(t *testing.T) model.Alias {
+	alias, err := model.MakeAlias(gofakeit.LetterN(20), gofakeit.Sentence(10))
+	if err != nil {
+		t.Errorf("failed to make random alias: %v", err)
+	}
+	return alias
 }

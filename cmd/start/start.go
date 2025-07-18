@@ -4,7 +4,7 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package startcmd
 
 import (
-	rootCmd "github.com/zakkbob/mxguard/cmd"
+	rootcmd "github.com/zakkbob/mxguard/cmd"
 
 	"github.com/spf13/cobra"
 )
@@ -15,13 +15,13 @@ var startCmd = &cobra.Command{
 	Short: "start your server",
 	Long:  `start your server`,
 	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.Logger.Info().Msg("Preparing to start server")
-		rootCmd.Logger.Info().Msg("Listening at ...")
+		rootcmd.Logger.Info().Msg("Preparing to start server")
+		rootcmd.Logger.Info().Msg("Listening at ...")
 	},
 }
 
 func init() {
-	rootCmd.RootCmd.AddCommand(startCmd)
+	rootcmd.RootCmd.AddCommand(startCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -23,9 +23,9 @@ func RandUserCreate(t *testing.T, r service.UserRepository) model.User {
 	randUser := modeltestutils.RandUser(t)
 
 	createdUser, err := r.CreateUser(context.Background(), service.CreateUserParams{
-		Username: randUser.Username,
-		IsAdmin:  randUser.IsAdmin,
-		Email:    randUser.Email,
+		Username: randUser.Username(),
+		IsAdmin:  randUser.IsAdmin(),
+		Email:    randUser.Email(),
 	})
 	if err != nil {
 		t.Errorf("failed to create user: %v", err)
@@ -34,22 +34,49 @@ func RandUserCreate(t *testing.T, r service.UserRepository) model.User {
 	return createdUser
 }
 
+func RandAliasCreate(t *testing.T, r service.UserRepository, user model.User) model.Alias {
+	alias := modeltestutils.RandAlias(t)
+
+	createdAlias, err := r.CreateAlias(context.Background(), user, alias.Name(), alias.Description())
+	if err != nil {
+		t.Errorf("failed to create alias: %v", err)
+	}
+
+	return createdAlias
+}
+
+func TestCreateAliasPersistsWithNoErrors(t *testing.T) {
+	userRepo := db.NewPostgresUserRepository(dbPool)
+
+	createdUser := RandUserCreate(t, userRepo)
+
+	expected := modeltestutils.RandAlias(t)
+
+	got, err := userRepo.CreateAlias(context.Background(), createdUser, expected.Name(), expected.Description())
+	assert.NoError(t, err, "CreateAlias should not return an error")
+	modeltestutils.AssertAliasesEqual(t, expected, got, "Returned alias should be equal to passed")
+
+	user, err := userRepo.GetUserByID(context.Background(), createdUser.ID())
+	assert.NoError(t, err, "GetUserByID should not return an error")
+	assert.Len(t, user.Aliases(), 1, "One alias should be present")
+	assert.Equal(t, expected, user.Aliases()[0], "Persisted alias should be equal to created alias")
+}
+
 func TestCreateAndGetUserByID(t *testing.T) {
 	userRepo := db.NewPostgresUserRepository(dbPool)
 
 	user := modeltestutils.RandUser(t)
 
 	createdUser, err := userRepo.CreateUser(context.Background(), service.CreateUserParams{
-		Username: user.Username,
-		IsAdmin:  user.IsAdmin,
-		Email:    user.Email,
+		Username: user.Username(),
+		IsAdmin:  user.IsAdmin(),
+		Email:    user.Email(),
 	})
 
 	assert.NoError(t, err, "CreateUser should not return an error")
-	assert.Equal(t, user.Username, createdUser.Username, "Created user's username should match requested username")
-	assert.Equal(t, user.IsAdmin, createdUser.IsAdmin, "Created user's admin status should match requested admin status")
+	modeltestutils.AssertUsersEqualIgnoreID(t, user, createdUser, "Created user should match requested user")
 
-	retrievedUser, err := userRepo.GetUserByID(context.Background(), createdUser.ID)
+	retrievedUser, err := userRepo.GetUserByID(context.Background(), createdUser.ID())
 
 	assert.NoError(t, err, "GetUserByID should not return an error")
 	assert.Equal(t, createdUser, retrievedUser, "Retrieved user should match created user")
@@ -59,13 +86,13 @@ func TestCreateAndDeleteUserByID(t *testing.T) {
 	userRepo := db.NewPostgresUserRepository(dbPool)
 	user := RandUserCreate(t, userRepo)
 
-	err := userRepo.DeleteUserByID(context.Background(), user.ID)
+	err := userRepo.DeleteUserByID(context.Background(), user.ID())
 	assert.NoError(t, err, "DeleteUserByID should not return an error")
 
-	_, err = userRepo.GetUserByID(context.Background(), user.ID)
+	_, err = userRepo.GetUserByID(context.Background(), user.ID())
 	assert.ErrorIs(t, err, service.ErrUserNotFound, "User should be deleted")
 
-	err = userRepo.DeleteUserByID(context.Background(), user.ID)
+	err = userRepo.DeleteUserByID(context.Background(), user.ID())
 	assert.ErrorIs(t, err, service.ErrUserNotFound, "DeleteUserByID should return ErrUserNotFound")
 }
 
@@ -73,13 +100,13 @@ func TestCreateAndDeleteUserByUsername(t *testing.T) {
 	userRepo := db.NewPostgresUserRepository(dbPool)
 	user := RandUserCreate(t, userRepo)
 
-	err := userRepo.DeleteUserByUsername(context.Background(), user.Username)
+	err := userRepo.DeleteUserByUsername(context.Background(), user.Username())
 	assert.NoError(t, err, "DeleteUser should not return an error")
 
-	_, err = userRepo.GetUserByID(context.Background(), user.ID)
+	_, err = userRepo.GetUserByID(context.Background(), user.ID())
 	assert.ErrorIs(t, err, service.ErrUserNotFound, "User should be deleted")
 
-	err = userRepo.DeleteUserByUsername(context.Background(), user.Username)
+	err = userRepo.DeleteUserByUsername(context.Background(), user.Username())
 	assert.ErrorIs(t, err, service.ErrUserNotFound, "DeleteUserByUsername should return ErrUserNotFound")
 }
 
