@@ -24,6 +24,12 @@ func NewPostgresUserRepository(conn Conn) *PostgresUserRepository {
 	}
 }
 
+type postgresAlias struct {
+	Name        string
+	Description string
+	Enabled     bool
+}
+
 type postgresUser struct {
 	ID       uuid.UUID
 	Username string
@@ -37,6 +43,30 @@ func (u postgresUser) ConstructDomainUser() (model.User, error) {
 		return user, fmt.Errorf("constructing user from database: %w", err)
 	}
 	return user, nil
+}
+
+func (a postgresAlias) ConstructDomainAlias() model.Alias {
+	return model.UnmarshalAlias(a.Name, a.Description, a.Enabled)
+}
+
+func (u *PostgresUserRepository) CreateAlias(ctx context.Context, user model.User, name string, description string) (model.Alias, error) {
+	sql := `
+        INSERT INTO alias (usr_id, name, description, enabled)
+        VALUES ($1, $2, $3, $4)
+    `
+
+	_, err := u.Conn.Exec(ctx, sql, user.ID(), name, description, true)
+	if err != nil {
+		return model.Alias{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
+	}
+
+	alias := postgresAlias{
+		Name:        name,
+		Description: description,
+		Enabled:     true,
+	}
+
+	return alias.ConstructDomainAlias(), nil
 }
 
 func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {

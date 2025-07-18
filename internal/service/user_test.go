@@ -13,13 +13,15 @@ import (
 
 // Captures the passed parameters
 type MockUserRepository struct {
-	User             model.User // canned user value
+	User             model.User  // canned user value
+	Alias            model.Alias // canned alias value
 	DeletedUsername  string
 	DeletedID        uuid.UUID
 	DeletedUser      model.User
 	CreateUserParams service.CreateUserParams
 	UserDeleted      bool
 	UserCreated      bool
+	AliasCreated     bool
 }
 
 func (m *MockUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
@@ -47,6 +49,27 @@ func (m *MockUserRepository) CreateUser(ctx context.Context, params service.Crea
 	m.CreateUserParams = params
 	return m.User, nil
 }
+
+func (m *MockUserRepository) CreateAlias(ctx context.Context, user model.User, name string, description string) (model.Alias, error) {
+	m.AliasCreated = true
+	return m.Alias, nil
+}
+
+func TestCreatingAliasDoesntModifyAlias(t *testing.T) {
+	expected := modeltestutils.RandAlias(t)
+
+	userRepo := &MockUserRepository{Alias: expected}
+	userService := service.NewUserService(userRepo)
+
+	user := modeltestutils.RandUser(t)
+	got, err := userService.CreateAlias(context.Background(), user, expected.Name(), expected.Description())
+
+	assert.NoError(t, err, "CreateAlias should not return an error")
+	assert.True(t, userRepo.AliasCreated)
+
+	modeltestutils.AssertAliasesEqual(t, expected, got, "Returned alias should be equal to created alias")
+}
+
 func TestCreatingUserDoesntModifyUser(t *testing.T) {
 	expected := modeltestutils.RandUser(t)
 	params := service.CreateUserParams{

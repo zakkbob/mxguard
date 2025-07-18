@@ -14,15 +14,25 @@ type Alias struct {
 	enabled     bool
 }
 
-func (a Alias) Name() string {
+// Needs pointer receiver to modify enabled value
+func (a *Alias) Enable() {
+	a.enabled = true
+}
+
+// Needs pointer receiver to modify enabled value
+func (a *Alias) Disable() {
+	a.enabled = false
+}
+
+func (a *Alias) Name() string {
 	return a.name
 }
 
-func (a Alias) Description() string {
+func (a *Alias) Description() string {
 	return a.description
 }
 
-func (a Alias) Enabled() bool {
+func (a *Alias) Enabled() bool {
 	return a.enabled
 }
 
@@ -36,6 +46,15 @@ func MakeAlias(name string, description string) (Alias, error) {
 		description: description,
 		enabled:     true,
 	}, nil
+}
+
+// Unmarshal creates an Alias struct from database data, this method should not be used elsewhere
+func UnmarshalAlias(name string, description string, enabled bool) Alias {
+	return Alias{
+		name:        name,
+		description: description,
+		enabled:     enabled,
+	}
 }
 
 // User struct should be immutable after creation to avoid bugs
@@ -68,15 +87,15 @@ func (u User) Aliases() []Alias {
 	return u.aliases
 }
 
-// Unmarshal created User struct from database data, should not be used elsewhere
-func UnmarshalUser(id uuid.UUID, username string, email string, isAdmin bool, aliases []Alias) (User, error) {
+// Unmarshal creates a User struct from database data, this method should not be used elsewhere
+func UnmarshalUser(id uuid.UUID, username string, email string, isAdmin bool, aliases []Alias) User {
 	return User{
 		id:       id,
 		username: username,
 		isAdmin:  isAdmin,
 		email:    email,
 		aliases:  aliases,
-	}, nil
+	}
 }
 
 func MakeUser(id uuid.UUID, username string, email string, isAdmin bool) (User, error) {

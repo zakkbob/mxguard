@@ -34,6 +34,24 @@ func RandUserCreate(t *testing.T, r service.UserRepository) model.User {
 	return createdUser
 }
 
+func TestCreateAliasReturnsNoError(t *testing.T) {
+	userRepo := db.NewPostgresUserRepository(dbPool)
+
+	user := modeltestutils.RandUser(t)
+	alias := modeltestutils.RandAlias(t)
+
+	createdUser, err := userRepo.CreateUser(context.Background(), service.CreateUserParams{
+		Username: user.Username(),
+		IsAdmin:  user.IsAdmin(),
+		Email:    user.Email(),
+	})
+
+	assert.NoError(t, err, "CreateUser should not return an error")
+
+	_, err = userRepo.CreateAlias(context.Background(), createdUser, alias.Name(), alias.Description())
+	assert.NoError(t, err, "CreateAlias should not return an error")
+}
+
 func TestCreateAndGetUserByID(t *testing.T) {
 	userRepo := db.NewPostgresUserRepository(dbPool)
 
@@ -46,7 +64,7 @@ func TestCreateAndGetUserByID(t *testing.T) {
 	})
 
 	assert.NoError(t, err, "CreateUser should not return an error")
-	modeltestutils.AssertUsersEqualIgnoreID(t, user, createdUser,"Created user should match requested user")
+	modeltestutils.AssertUsersEqualIgnoreID(t, user, createdUser, "Created user should match requested user")
 
 	retrievedUser, err := userRepo.GetUserByID(context.Background(), createdUser.ID())
 

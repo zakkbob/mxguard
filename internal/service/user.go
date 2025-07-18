@@ -13,9 +13,11 @@ import (
 // TODO: May be too granular right now, I will check over them once the minimum demo is working
 
 var (
-	ErrEmptyUsername = errors.New("username cannot be empty")
-	ErrEmptyEmail    = errors.New("email cannot be empty")
-	ErrUserNotFound  = errors.New("user not found")
+	ErrEmptyUsername    = errors.New("username cannot be empty")
+	ErrEmptyEmail       = errors.New("email cannot be empty")
+	ErrEmptyName        = errors.New("name cannot be empty")
+	ErrEmptyDescription = errors.New("description cannot be empty")
+	ErrUserNotFound     = errors.New("user not found")
 )
 
 // Represents an internal repository error
@@ -44,6 +46,8 @@ type UserRepository interface {
 	DeleteUserByUsername(context.Context, string) error
 	GetUserByID(context.Context, uuid.UUID) (model.User, error)
 	GetUserByUsername(context.Context, string) (model.User, error)
+
+	CreateAlias(ctx context.Context, user model.User, name string, description string) (model.Alias, error)
 }
 
 func NewUserService(repo UserRepository) *UserService {
@@ -107,4 +111,20 @@ func (u *UserService) DeleteUserByUsername(ctx context.Context, username string)
 		return fmt.Errorf("deleting user: %w", err)
 	}
 	return nil
+}
+
+func (u *UserService) CreateAlias(ctx context.Context, user model.User, name string, description string) (model.Alias, error) {
+	if name == "" {
+		return model.Alias{}, ErrEmptyName
+	}
+
+	if name == "" {
+		return model.Alias{}, ErrEmptyDescription
+	}
+
+	alias, err := u.Repo.CreateAlias(ctx, user, name, description)
+	if err != nil {
+		return model.Alias{}, fmt.Errorf("creating alias: %w", err)
+	}
+	return alias, err
 }

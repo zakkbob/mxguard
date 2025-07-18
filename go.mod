@@ -3,6 +3,7 @@ module github.com/zakkbob/mxguard
 go 1.24.3
 
 require (
+	github.com/brianvoe/gofakeit/v7 v7.3.0
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
@@ -19,7 +20,6 @@ require (
 	github.com/Azure/go-ansiterm v0.0.0-20230124172434-306776ec8161 // indirect
 	github.com/Microsoft/go-winio v0.6.2 // indirect
 	github.com/Nvveen/Gotty v0.0.0-20120604004816-cd527374f1e5 // indirect
-	github.com/brianvoe/gofakeit/v7 v7.3.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
 	github.com/containerd/continuity v0.4.5 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
