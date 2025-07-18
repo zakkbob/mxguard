@@ -14,25 +14,15 @@ type Alias struct {
 	enabled     bool
 }
 
-// Needs pointer receiver to modify enabled value
-func (a *Alias) Enable() {
-	a.enabled = true
-}
-
-// Needs pointer receiver to modify enabled value
-func (a *Alias) Disable() {
-	a.enabled = false
-}
-
-func (a *Alias) Name() string {
+func (a Alias) Name() string {
 	return a.name
 }
 
-func (a *Alias) Description() string {
+func (a Alias) Description() string {
 	return a.description
 }
 
-func (a *Alias) Enabled() bool {
+func (a Alias) Enabled() bool {
 	return a.enabled
 }
 
@@ -84,7 +74,10 @@ func (u User) Email() string {
 }
 
 func (u User) Aliases() []Alias {
-	return u.aliases
+	// Return a copy to keep immutability
+	aliases := make([]Alias, len(u.aliases))
+	copy(aliases, u.aliases)
+	return aliases
 }
 
 // Unmarshal creates a User struct from database data, this method should not be used elsewhere

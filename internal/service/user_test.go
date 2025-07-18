@@ -93,6 +93,7 @@ func TestCreatingUserWithEmptyUsernameThrowsErrEmptyUsername(t *testing.T) {
 	params := service.CreateUserParams{
 		Username: "",
 		IsAdmin:  false,
+		Email:    "test@email.com",
 	}
 	expected := model.User{}
 	userRepo := &MockUserRepository{}
@@ -101,6 +102,24 @@ func TestCreatingUserWithEmptyUsernameThrowsErrEmptyUsername(t *testing.T) {
 	got, err := userService.CreateUser(context.Background(), params)
 
 	assert.ErrorIs(t, err, service.ErrEmptyUsername, "CreateUser should return ErrEmptyUsername")
+	assert.Equal(t, expected, got, "Returned user should be empty")
+	assert.False(t, userRepo.UserCreated, "No user should've been created")
+	assert.False(t, userRepo.UserDeleted, "No user should've been deleted")
+}
+
+func TestCreatingUserWithEmptyEmailThrowsErrEmptyEmail(t *testing.T) {
+	params := service.CreateUserParams{
+		Username: "test",
+		IsAdmin:  false,
+		Email:    "",
+	}
+	expected := model.User{}
+	userRepo := &MockUserRepository{}
+	userService := service.NewUserService(userRepo)
+
+	got, err := userService.CreateUser(context.Background(), params)
+
+	assert.ErrorIs(t, err, service.ErrEmptyEmail, "CreateUser should return ErrEmptyEmail")
 	assert.Equal(t, expected, got, "Returned user should be empty")
 	assert.False(t, userRepo.UserCreated, "No user should've been created")
 	assert.False(t, userRepo.UserDeleted, "No user should've been deleted")
