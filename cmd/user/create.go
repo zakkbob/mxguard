@@ -7,7 +7,7 @@ import (
 	"context"
 	"os"
 	"github.com/spf13/cobra"
-	rootCmd "github.com/zakkbob/mxguard/cmd"
+	rootcmd "github.com/zakkbob/mxguard/cmd"
 	"github.com/zakkbob/mxguard/cmd/helpers"
 	"github.com/zakkbob/mxguard/db"
 	"github.com/zakkbob/mxguard/internal/service"
@@ -19,40 +19,40 @@ var createCmd = &cobra.Command{
 	Short: "Create a new user",
 	Long:  `Create a new user`,
 	Run: func(cmd *cobra.Command, args []string) {
-		conn, err := db.InitConn(&rootCmd.Config)
+		conn, err := db.InitConn(&rootcmd.Config)
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Msg("Failed to connect to database")
+			rootcmd.Logger.Fatal().Err(err).Msg("Failed to connect to database")
 		}
 		userRepository := db.NewPostgresUserRepository(conn)
 		userService := service.NewUserService(userRepository)
 
 		username, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "username", "Enter username: ")
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get username")
+			rootcmd.Logger.Fatal().Err(err).Msg("Failed to get username")
 		}
 
 		isAdmin, err := helpers.GetBoolFlagOrPrompt(cmd, os.Stdin, "admin")
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get admin status")
+			rootcmd.Logger.Fatal().Err(err).Msg("Failed to get admin status")
 		}
 
 		email, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "email", "Enter email: ")
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get email")
+			rootcmd.Logger.Fatal().Err(err).Msg("Failed to get email")
 		}
 
 		params := service.CreateUserParams{Username: username, IsAdmin: isAdmin, Email: email}
 
 		user, err := userService.CreateUser(context.TODO(), params)
 		if err != nil {
-			rootCmd.Logger.Fatal().Err(err).Any("params", params).Msg("Failed to create user")
+			rootcmd.Logger.Fatal().Err(err).Any("params", params).Msg("Failed to create user")
 		}
-		rootCmd.Logger.Info().Any("user", user).Msg("Successfully created user")
+		rootcmd.Logger.Info().Any("user", user).Msg("Successfully created user")
 	},
 }
 
 func init() {
-	userCmd.AddCommand(createCmd)
+	UserCmd.AddCommand(createCmd)
 
 	// Here you will define your flags and configuration settings.
 

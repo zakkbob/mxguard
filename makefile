@@ -1,7 +1,7 @@
 include .env
 
 create_migration:
-	migrate create -ext=sql -dir=internal/database/migrations -seq init
+	migrate create -ext=sql -dir=db/migrations -seq init
 
 migrate_up:
 	migrate -path=db/migrations -database "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}?sslmode=disable" -verbose up
