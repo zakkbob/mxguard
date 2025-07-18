@@ -24,34 +24,52 @@ func NewPostgresUserRepository(conn Conn) *PostgresUserRepository {
 	}
 }
 
+type postgresUser struct {
+	ID       uuid.UUID
+	Username string
+	IsAdmin  bool
+	Email    string
+}
+
+func (u postgresUser) ConstructDomainUser() (model.User, error) {
+	user, err := model.NewUser(u.ID, u.Username, u.IsAdmin, u.Email)
+	if err != nil {
+		return user, fmt.Errorf("constructing user from database: %w", err)
+	}
+	return user, nil
+}
+
 func (u *PostgresUserRepository) CreateUser(ctx context.Context, params service.CreateUserParams) (model.User, error) {
 	sql := `
-        INSERT INTO usr (username, is_admin)
-        VALUES ($1, $2)
+        INSERT INTO usr (username, is_admin, email)
+        VALUES ($1, $2, $3)
         RETURNING id
     `
 
 	var id uuid.UUID
-	err := u.Conn.QueryRow(ctx, sql, params.Username, params.IsAdmin).Scan(&id)
+	err := u.Conn.QueryRow(ctx, sql, params.Username, params.IsAdmin, params.Email).Scan(&id)
 	if err != nil {
 		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
 	}
 
-	return model.User{
+	user := postgresUser{
 		ID:       id,
 		Username: params.Username,
 		IsAdmin:  params.IsAdmin,
-	}, nil
+		Email:    params.Email,
+	}
+
+	return user.ConstructDomainUser()
 }
 
 func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) (model.User, error) {
 	sql := `
-	SELECT id, username, is_admin FROM usr
+	SELECT id, username, is_admin, email FROM usr
 	WHERE id = $1
 	`
 
-	var user model.User
-	err := u.Conn.QueryRow(ctx, sql, id).Scan(&user.ID, &user.Username, &user.IsAdmin)
+	var user postgresUser
+	err := u.Conn.QueryRow(ctx, sql, id).Scan(&user.ID, &user.Username, &user.IsAdmin, &user.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.User{}, service.ErrUserNotFound
@@ -59,17 +77,17 @@ func (u *PostgresUserRepository) GetUserByID(ctx context.Context, id uuid.UUID) 
 		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
 	}
 
-	return user, nil
+	return user.ConstructDomainUser()
 }
 
 func (u *PostgresUserRepository) GetUserByUsername(ctx context.Context, username string) (model.User, error) {
 	sql := `
-	SELECT id, username, is_admin FROM usr
+	SELECT id, username, is_admin, email FROM usr
 	WHERE username = $1
 	`
 
-	var user model.User
-	err := u.Conn.QueryRow(ctx, sql, username).Scan(&user.ID, &user.Username, &user.IsAdmin)
+	var user postgresUser
+	err := u.Conn.QueryRow(ctx, sql, username).Scan(&user.ID, &user.Username, &user.IsAdmin, &user.Email)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return model.User{}, service.ErrUserNotFound
@@ -77,7 +95,7 @@ func (u *PostgresUserRepository) GetUserByUsername(ctx context.Context, username
 		return model.User{}, fmt.Errorf("querying database: %w", &service.ErrInternal{Err: err})
 	}
 
-	return user, nil
+	return user.ConstructDomainUser()
 }
 
 func (u *PostgresUserRepository) DeleteUserByID(ctx context.Context, id uuid.UUID) error {

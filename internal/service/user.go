@@ -4,15 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/google/uuid"
 	"github.com/zakkbob/mxguard/internal/model"
 )
 
 // ---- Errors ----
+// TODO: May be too granular right now, I will check over them once the minimum demo is working
 
-// var ErrNoID = errors.New("ID cannot be nil")
 var (
 	ErrEmptyUsername = errors.New("username cannot be empty")
+	ErrEmptyEmail    = errors.New("email cannot be empty")
 	ErrUserNotFound  = errors.New("user not found")
 )
 
@@ -29,9 +31,11 @@ func (e *ErrInternal) Error() string {
 
 // ----------------
 
+// TODO: Is this needed? may remove later
 type CreateUserParams struct {
 	Username string
 	IsAdmin  bool
+	Email    string
 }
 
 type UserRepository interface {
@@ -55,6 +59,10 @@ type UserService struct {
 func (u *UserService) CreateUser(ctx context.Context, params CreateUserParams) (model.User, error) {
 	if params.Username == "" {
 		return model.User{}, ErrEmptyUsername
+	}
+
+	if params.Email == "" {
+		return model.User{}, ErrEmptyEmail
 	}
 
 	user, err := u.Repo.CreateUser(ctx, params)

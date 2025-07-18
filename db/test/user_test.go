@@ -19,12 +19,13 @@ import (
 
 // CreateUser isn't the SUT, so an error will just fail the test and log, not be returned
 func RandUserCreate(t *testing.T, r service.UserRepository) model.User {
-	// the ID is ignore here, but this saves creating a specific CreateUserParams random generator. Do i even need that struct?
+	// the ID is ignored here, but this saves creating a specific CreateUserParams random generator. Do i even need that struct?
 	randUser := modeltestutils.RandUser(t)
 
 	createdUser, err := r.CreateUser(context.Background(), service.CreateUserParams{
 		Username: randUser.Username,
 		IsAdmin:  randUser.IsAdmin,
+		Email:    randUser.Email,
 	})
 	if err != nil {
 		t.Errorf("failed to create user: %v", err)
@@ -41,6 +42,7 @@ func TestCreateAndGetUserByID(t *testing.T) {
 	createdUser, err := userRepo.CreateUser(context.Background(), service.CreateUserParams{
 		Username: user.Username,
 		IsAdmin:  user.IsAdmin,
+		Email:    user.Email,
 	})
 
 	assert.NoError(t, err, "CreateUser should not return an error")
