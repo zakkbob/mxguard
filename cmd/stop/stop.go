@@ -5,7 +5,7 @@ package stopcmd
 
 import (
 	"github.com/spf13/cobra"
-	rootCmd "github.com/zakkbob/mxguard/cmd"
+	rootcmd "github.com/zakkbob/mxguard/cmd"
 )
 
 // stopCmd represents the stop command
@@ -14,12 +14,12 @@ var stopCmd = &cobra.Command{
 	Short: "Stop your server",
 	Long:  "Stop your server",
 	Run: func(cmd *cobra.Command, args []string) {
-		rootCmd.Logger.Info().Msg("Stopped")
+		rootcmd.Logger.Info().Msg("Stopped")
 	},
 }
 
 func init() {
-	rootCmd.RootCmd.AddCommand(stopCmd)
+	rootcmd.RootCmd.AddCommand(stopCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -1,25 +1,25 @@
 /*
 Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 */
-package usercmd
+package aliascmd
 
 import (
 	"github.com/spf13/cobra"
-	rootcmd "github.com/zakkbob/mxguard/cmd"
+	usercmd "github.com/zakkbob/mxguard/cmd/user"
 )
 
-// UserCmd represents the users command
-var UserCmd = &cobra.Command{
-	Use:   "user",
-	Short: "Manage users within the application",
-	Long:  `M a n a g e   u s e r s   w i t h i n   t h e   a p p l i c a t i o n`,
+// userCmd represents the users command
+var aliasCmd = &cobra.Command{
+	Use:   "alias",
+	Short: "Manage user aliases",
+	Long:  `Manage user aliases`,
 	// Run: func(cmd *cobra.Command, args []string) {
 	// 	fmt.Println("users called")
 	// },
 }
 
 func init() {
-	rootcmd.RootCmd.AddCommand(UserCmd)
+	usercmd.UserCmd.AddCommand(aliasCmd)
 
 	// Here you will define your flags and configuration settings.
 
