@@ -4,26 +4,13 @@ package modeltestutils
 // ONLY for tests
 
 import (
-	"math/rand"
+	"testing"
+
+	"github.com/brianvoe/gofakeit/v7"
+
 	"github.com/google/uuid"
 	"github.com/zakkbob/mxguard/internal/model"
-	"testing"
 )
-
-func randStr(n int) string {
-	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-	b := make([]byte, n)
-	for i := 0; i < n; i++ {
-		b[i] = letters[rand.Intn(len(letters))]
-	}
-
-	return string(b)
-}
-
-func randBool() bool {
-	return rand.Intn(2) == 0
-}
 
 // Returns a user with completely random fields
 // testing.T is passed so that errors can be automatically checked
@@ -33,9 +20,10 @@ func RandUser(t *testing.T) model.User {
 		t.Errorf("failed to generate random UUID: %v", err)
 	}
 
-	return model.User {
-		ID: id,
-		Username: randStr(20),
-		IsAdmin: randBool(),
+	return model.User{
+		ID:       id,
+		Username: gofakeit.LetterN(20),
+		IsAdmin:  gofakeit.Bool(),
+		Email:    gofakeit.Email(),
 	}
 }

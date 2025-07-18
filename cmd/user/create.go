@@ -36,7 +36,12 @@ var createCmd = &cobra.Command{
 			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get admin status")
 		}
 
-		params := service.CreateUserParams{Username: username, IsAdmin: isAdmin}
+		email, err := helpers.GetStringFlagOrPrompt(cmd, os.Stdin, "email", "Enter email: ")
+		if err != nil {
+			rootCmd.Logger.Fatal().Err(err).Msg("Failed to get email")
+		}
+
+		params := service.CreateUserParams{Username: username, IsAdmin: isAdmin, Email: email}
 
 		user, err := userService.CreateUser(context.TODO(), params)
 		if err != nil {
@@ -55,6 +60,7 @@ func init() {
 	// and all subcommands, e.g.:
 	createCmd.Flags().StringP("username", "u", "", "Set username")
 	createCmd.Flags().BoolP("admin", "a", false, "Set admin status")
+	createCmd.Flags().StringP("email", "e", "", "Set email")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
